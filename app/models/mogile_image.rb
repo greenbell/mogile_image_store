@@ -21,6 +21,7 @@ class MogileImage < ActiveRecord::Base
       begin
         imglist = ::Magick::ImageList.new
         imglist.from_blob(data)
+        imglist.format = "jpeg" if ["JPEG", "png", "PNG"].include? imglist.format
       rescue
         # 画像ではない場合
         raise ::MogileImageStore::InvalidImage
