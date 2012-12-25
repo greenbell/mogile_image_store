@@ -14,7 +14,7 @@ module MogileImageStore
     #
     # ActiveRecord::Baseにextendされるモジュール
     #
-    module ClassMethods 
+    module ClassMethods
       ##
       # 画像保存用のコールバックを設定する。
       #
@@ -35,7 +35,7 @@ module MogileImageStore
       #   has_images
       #   has_images :logo
       #   has_images ['banner1', 'banner2']
-      # 
+      #
       def has_images(columns=nil, options={})
         cattr_accessor  :image_columns, :image_options
         attr_accessor  :image_attributes
@@ -144,10 +144,7 @@ module MogileImageStore
 
         # ファイルサイズの判定
         if file.size > ::MogileImageStore::options[:maxsize]
-          errors[column] << (
-            I18n.translate('mogile_image_store.errors.messages.size_smaller')
-            % [::MogileImageStore::options[:maxsize]/1024]
-          )
+          errors[column] << ( I18n.translate('mogile_image_store.errors.messages.size_larger', :d => ::MogileImageStore::options[:maxsize]/1024) )
         end
 
         begin
