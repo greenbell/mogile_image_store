@@ -11,6 +11,7 @@ describe ImageTest do
     t.size.should == 5.megabytes+1
     image_test.set_image_file :image, t
     image_test.valid?.should be_false
+    image_test.errors[:image].shift.should == "must be smaller than 5120KB."
   end
 
   context "default validation" do

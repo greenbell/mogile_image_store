@@ -144,7 +144,10 @@ module MogileImageStore
 
         # ファイルサイズの判定
         if file.size > ::MogileImageStore::options[:maxsize]
-          errors[column] << ( I18n.translate('mogile_image_store.errors.messages.size_smaller', :d => ::MogileImageStore::options[:maxsize]/1024) )
+          errors[column] << (
+            I18n.translate('mogile_image_store.errors.messages.size_smaller') %
+            [::MogileImageStore::options[:maxsize]/1024]
+          )
         end
 
         begin
