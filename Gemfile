@@ -16,7 +16,7 @@ group :development do
   gem "capybara"
   gem "rdoc"
   gem "database_cleaner"
-  gem 'rails3_acts_as_paranoid', :git => 'git://github.com/mshibuya/rails3_acts_as_paranoid.git', :ref => '5578dc5'
+  gem 'rails3_acts_as_paranoid', :github => 'goncalossilva/rails3_acts_as_paranoid', :branch => 'rails3.0'
   if RUBY_VERSION >= '1.9'
     gem "ruby-debug19"
   else

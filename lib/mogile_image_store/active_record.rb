@@ -113,7 +113,7 @@ module MogileImageStore
       #
       def destroy_images
         image_columns.each do |c|
-          ::MogileImage.destroy_image(self[c]) if self[c] && destroyed?
+          ::MogileImage.destroy_image(self[c]) if self[c] && destroyed? && frozen?
         end
       end
 
