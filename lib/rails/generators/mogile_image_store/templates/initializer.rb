@@ -31,6 +31,8 @@ module MogileImageStore
       :alternatives => {
       #  :default => '',
       },
+      # filter usage sample:
+      # :image_filter => lambda{|imglist| imglist.format = "jpeg" if ["JPEG", "PNG"].include? imglist.format.upcase },
     }
   end
 end

@@ -21,10 +21,12 @@ class MogileImage < ActiveRecord::Base
       begin
         imglist = ::Magick::ImageList.new
         imglist.from_blob(data)
-        imglist.format = "jpeg" if ["JPEG", "png", "PNG"].include? imglist.format
       rescue
         # 画像ではない場合
         raise ::MogileImageStore::InvalidImage
+      end
+      if (filter = ::MogileImageStore.options[:image_filter]) && filter.is_a?(Proc)
+        filter.call(imglist)
       end
       # 保存時リサイズを行うかどうか判定
       noresize = true
@@ -332,6 +334,7 @@ class MogileImage < ActiveRecord::Base
         @@mogilefs = MogileFS::MogileFS.new({
           :domain => MogileImageStore.backend['domain'],
           :hosts  => MogileImageStore.backend['hosts'],
+          :timeout => MogileImageStore.backend['timeout'] || 3
         })
       end
     end

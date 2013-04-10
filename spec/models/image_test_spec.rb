@@ -388,5 +388,23 @@ describe ImageTest do
         imglist.first.rows.should == 1536
       end
     end
+
+    context "filter" do
+      before do
+        MogileImageStore.options[:image_filter] = lambda{|imglist| imglist.format = 'png' }
+        @image_test = Factory.build(:image_test)
+      end
+
+      after do
+        MogileImageStore.options.delete :image_filter
+      end
+
+      it "should work" do
+        @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
+        lambda{ @image_test.save }.should_not raise_error
+        @image_test.image.should == 'bcadded5ee18bfa7c99834f307332b02.png'
+        @mg.list_keys('').shift.should == ['bcadded5ee18bfa7c99834f307332b02.png']
+      end
+    end
   end
 end
