@@ -6,9 +6,7 @@ require "action_controller/railtie"
 require "action_view/railtie"
 require "action_mailer/railtie"
 
-Bundler.require
-require "mogile_image_store"
-require "rails3_acts_as_paranoid"
+Bundler.require(:default, :test)
 
 module Dummy
   class Application < Rails::Application

@@ -18,7 +18,7 @@ Jeweler::Tasks.new do |gem|
   gem.license = "MIT"
   gem.summary = %Q{Rails plugin for using MogileFS as image storage}
   gem.description = %Q{Rails plugin for using MogileFS as image storage}
-  gem.email = "shibuya@lavan7.co.jp"
+  gem.email = "m.shibuya@green-bell.jp"
   gem.authors = ["Mitsuhiro Shibuya"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
