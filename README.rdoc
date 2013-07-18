@@ -5,7 +5,7 @@ This project rocks and uses MIT-LICENSE.
 == mogile_fs.ymlの設定
 ====hosts
 MogileFS trackerホスト群
-      hosts:    [192.168.11.72:7001, 192.168.11.73:7001]
+      hosts:    [192.168.0.1:7001, 192.168.0.2:7001]
 ====domain
 画像保存に使うMogileFSドメイン名
       domain:   dev
@@ -29,16 +29,5 @@ PerlbalにReproxyキャッシュをさせたい場合にキャッシュする秒
       mount_at: /image/
 ====secret
 Reproxy Cache Clearリクエストのために使う認証キー。リクエストする側と受ける側で一致する必要がある。rake secretで生成した値を貼るのが推奨。
-      secret:   f8e4bf73385bf9c0d7200eb42382f4f343631dacb4d62767462dd42398a64b690484756369ce2d48a9c12cef2ed36d33cacb2cac4875d9bb12756e2d72acbe29
+      secret:   f8e4bf7...
 
-==新ナイスタ本番用参考設定
-    production:
-      hosts:    [192.168.11.72:7001, 192.168.11.73:7001]
-      domain:   nightstyle-production
-      class:    image
-      reproxy:  true
-      cache:    604800
-      base_url: 'http://img.night.style-vip.jp/image/'
-      perlbal:  192.168.11.69
-      secret:   ...
-    
