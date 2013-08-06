@@ -2,17 +2,17 @@ en:
   mogile_image_store:
     errors:
       messages:
-        must_be_image_type: "must be %s file."
+        must_be_image_type: "must be %{type} file."
         must_be_image:      "must be image file."
         must_be_valid_type: "must be JPEG, GIF or PNG file."
-        size_smaller:       "must be smaller than %dKB."
-        size_larger:        "must be larger than %dKB."
-        width_smaller:      "'s width must be smaller than %d pixels."
-        width_larger:       "'s width must be larger than %d pixels."
-        width:              "'s width must be %d pixels."
-        height_smaller:     "'s height must be smaller than %d pixels."
-        height_larger:      "'s height must be larger than %d pixels."
-        height:             "'s height must be %d pixels."
+        size_smaller:       "must be smaller than %{size}KB."
+        size_larger:        "must be larger than %{size}KB."
+        width_smaller:      "'s width must be smaller than %{width} pixels."
+        width_larger:       "'s width must be larger than %{width} pixels."
+        width:              "'s width must be %{width} pixels."
+        height_smaller:     "'s height must be smaller than %{height} pixels."
+        height_larger:      "'s height must be larger than %{height} pixels."
+        height:             "'s height must be %{height} pixels."
         cache_expired:      "has been expired. Please upload again."
       flashes:
         delete_failed:      "Failed to delete image."

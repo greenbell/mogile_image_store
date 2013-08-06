@@ -2,17 +2,17 @@ ja:
   mogile_image_store:
     errors:
       messages:
-        must_be_image_type: "は%sファイルでなければなりません。"
+        must_be_image_type: "は%{type}ファイルでなければなりません。"
         must_be_image:      "は画像ファイルでなければなりません。"
         must_be_valid_type: "はJPEG,GIFまたはPNGファイルでなければなりません。"
-        size_smaller:       "は%dKB以下でなければなりません。"
-        size_larger:        "は%dKB以上でなければなりません。"
-        width_smaller:      "の幅は%dpixel以下でなければなりません。"
-        width_larger:       "の幅は%dpixel以上でなければなりません。"
-        width:              "の幅は%dpixelでなければなりません。"
-        height_smaller:     "の高さは%dpixel以下でなければなりません。"
-        height_larger:      "の高さは%dpixel以上でなければなりません。"
-        height:             "の高さは%dpixelでなければなりません。"
+        size_smaller:       "は%{size}KB以下でなければなりません。"
+        size_larger:        "は%{size}KB以上でなければなりません。"
+        width_smaller:      "の幅は%{width}pixel以下でなければなりません。"
+        width_larger:       "の幅は%{width}pixel以上でなければなりません。"
+        width:              "の幅は%{width}pixelでなければなりません。"
+        height_smaller:     "の高さは%{height}pixel以下でなければなりません。"
+        height_larger:      "の高さは%{height}pixel以上でなければなりません。"
+        height:             "の高さは%{height}pixelでなければなりません。"
         cache_expired:      "は保存期限を過ぎました。再度アップロードしてください。"
       flashes:
         delete_failed:      "画像の削除に失敗しました。"
