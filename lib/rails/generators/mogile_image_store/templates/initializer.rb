@@ -1,7 +1,7 @@
 module MogileImageStore
   class Engine < Rails::Engine
 
-    config.mogile_fs = YAML::load_file("#{Rails.root}/config/initializers/mogile_fs.yml")
+    config.mogile_fs = YAML.load(ERB.new(File.read("#{Rails.root}/config/initializers/mogile_fs.yml")).result)
 
     config.options = {
       # default image size for FormBuilder#image_field
