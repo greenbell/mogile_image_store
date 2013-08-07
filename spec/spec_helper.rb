@@ -19,11 +19,6 @@ ActionMailer::Base.default_url_options[:host] = "test.com"
 
 Rails.backtrace_cleaner.remove_silencers!
 
-# Configure capybara for integration testing
-require "capybara/rails"
-Capybara.default_driver   = :rack_test
-Capybara.default_selector = :css
-
 # generate migration files
 require "#{File.dirname(__FILE__)}/../lib/rails/generators/mogile_image_store/mogile_image_store_generator"
 Dir["#{File.dirname(__FILE__)}/dummy/db/migrate/*_create_mogile_image_tables.rb"].each { |f| File.unlink f }
