@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module MogileImageStore
   ##
   # 画像をバリデートします。
@@ -15,10 +17,10 @@ module MogileImageStore
 
     class ImageAttributeValidator < ActiveModel::EachValidator # :nodoc:
       def validate_each(record, attribute, value)
-        image = record.image_attributes[attribute].symbolize_keys rescue return
+        return unless value.is_a? MogileImageStore::Attachment
         if options[:type]
           typearr = Array.wrap(options[:type]).map{ |i| ::MogileImageStore::EXT_TO_TYPE[i.to_sym] }
-          unless typearr.include?(image[:type])
+          unless typearr.include?(value.type.to_s)
             record.errors[attribute] << (
               options[:type_message] ||
               I18n.translate('mogile_image_store.errors.messages.must_be_image_type', :type => typearr.join(','))
@@ -26,7 +28,7 @@ module MogileImageStore
           end
         end
         if options[:maxsize]
-          if image[:size] > options[:maxsize]
+          if value.size > options[:maxsize]
             record.errors[attribute] << (
               options[:size_message] ||
               I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => options[:maxsize]/1024)
@@ -34,7 +36,7 @@ module MogileImageStore
           end
         end
         if options[:minsize]
-          if image[:size] < options[:minsize]
+          if value.size < options[:minsize]
             record.errors[attribute] << (
               options[:size_message] ||
               I18n.translate('mogile_image_store.errors.messages.size_larger', :size => options[:minsize]/1024)
@@ -42,7 +44,7 @@ module MogileImageStore
           end
         end
         if options[:maxwidth]
-          if image[:width] > options[:maxwidth]
+          if value.width > options[:maxwidth]
             record.errors[attribute] << (
               options[:width_message] ||
               I18n.translate('mogile_image_store.errors.messages.width_smaller', :width => options[:maxwidth])
@@ -50,7 +52,7 @@ module MogileImageStore
           end
         end
         if options[:minwidth]
-          if image[:width] < options[:minwidth]
+          if value.width < options[:minwidth]
             record.errors[attribute] << (
               options[:width_message] ||
               I18n.translate('mogile_image_store.errors.messages.width_larger', :width => options[:minwidth])
@@ -58,7 +60,7 @@ module MogileImageStore
           end
         end
         if options[:width]
-          if image[:width] != options[:width]
+          if value.width != options[:width]
             record.errors[attribute] << (
               options[:width_message] ||
               I18n.translate('mogile_image_store.errors.messages.width', :width => options[:width])
@@ -66,7 +68,7 @@ module MogileImageStore
           end
         end
         if options[:maxheight]
-          if image[:height] > options[:maxheight]
+          if value.height > options[:maxheight]
             record.errors[attribute] << (
               options[:height_message] ||
               I18n.translate('mogile_image_store.errors.messages.height_smaller', :height => options[:maxheight])
@@ -74,7 +76,7 @@ module MogileImageStore
           end
         end
         if options[:minheight]
-          if image[:height] < options[:minheight]
+          if value.height < options[:minheight]
             record.errors[attribute] << (
               options[:height_message] ||
               I18n.translate('mogile_image_store.errors.messages.height_larger', :height => options[:minheight])
@@ -82,7 +84,7 @@ module MogileImageStore
           end
         end
         if options[:height]
-          if image[:height] != options[:height]
+          if value.height != options[:height]
             record.errors[attribute] << (
               options[:height_message] ||
               I18n.translate('mogile_image_store.errors.messages.height', :height => options[:height])
@@ -93,9 +95,6 @@ module MogileImageStore
     end
 
     module ClassMethods
-      ##
-      # 画像をバリデートします（Rails2互換形式）
-      #
       def validates_image_attribute_of(*attr_names)
         validates_with ImageAttributeValidator, _merge_attributes(attr_names)
       end

@@ -1,6 +1,5 @@
 # coding: utf-8
 require 'mogilefs'
-require 'digest/md5'
 require 'net/http'
 
 class MogileImage < ActiveRecord::Base
@@ -12,70 +11,20 @@ class MogileImage < ActiveRecord::Base
     :png => 'image/png',
   })
 
-  class << self
-    ##
-    # 画像にメタデータを付加したハッシュを作成
-    #
-    def parse_image(data, options={})
-      options = options.symbolize_keys
-      begin
-        imglist = ::Magick::ImageList.new
-        imglist.from_blob(data)
-      rescue
-        # 画像ではない場合
-        raise ::MogileImageStore::InvalidImage
-      end
-      if (filter = ::MogileImageStore.options[:image_filter]) && filter.is_a?(Proc)
-        filter.call(imglist)
-      end
-      # 保存時リサイズを行うかどうか判定
-      noresize = true
-      noresize = false if ::MogileImageStore.options[:maxwidth] &&
-          imglist.first.columns > ::MogileImageStore.options[:maxwidth].to_i
-      noresize = false if ::MogileImageStore.options[:maxheight] &&
-          imglist.first.columns > ::MogileImageStore.options[:maxheight].to_i
+  before_destroy :purge_stored_content
 
-      # stripするかどうか判定
-      nostrip = (options[:keep_exif] ||
-                  imglist.inject([]){|r,i| r.concat(i.get_exif_by_entry()) } == [])
-      if noresize && nostrip
-        content = data
-      else
-        unless noresize
-          imglist.each do |i|
-            i.resize_to_fit!(MogileImageStore.options[:maxwidth],
-                             MogileImageStore.options[:maxheight])
-          end
-        end
-        unless nostrip
-          # strip exif info
-          imglist.each{|i| i.strip! }
-        end
-        content = imglist.to_blob
-      end
-      img = imglist.first
-      HashWithIndifferentAccess.new({
-        'content' => content,
-        'size' => content.size,
-        'type' => img.format,
-        'width' => img.columns,
-        'height' => img.rows,
-      })
-    end
+  class << self
     ##
     # 同一ハッシュのレコードが存在するかどうか調べ、
     # なければレコードを作成すると同時にMogileFSに保存する。
     # あれば参照カウントを1増やす。
     #
-    def save_image(image_attrs, options = {})
+    def save_image(attachment, options = {})
       temporary = options.delete(:temporary) || false
-      content = image_attrs['content']
-      name = Digest::MD5.hexdigest(content)
-      self.transaction do
-        record = find_or_initialize_by_name name
+      transaction do
+        record = find_or_initialize_by_name attachment.name
         unless record.persisted?
-          image_attrs.map{ |k,v| record[k] = v if %w[size width height].include? k }
-          record.image_type = ::MogileImageStore::TYPE_TO_EXT[image_attrs['type'].to_sym.upcase]
+          record.attributes = attachment.attributes
           if temporary
             record.refcount = 0
             record.keep_till = Time.now + (MogileImageStore.options[:upload_cache] || 3600)
@@ -83,27 +32,31 @@ class MogileImage < ActiveRecord::Base
             record.refcount = 1
           end
           record.save!
-          filename = name+'.'+record['image_type']
-          mg = mogilefs_connect
-          mg.store_content filename, MogileImageStore.backend['class'], content
-          filename
+          mogilefs_connection.store_content record.filename, MogileImageStore.backend['class'], attachment.content
         else
           if temporary
             record.keep_till = Time.now + (MogileImageStore.options[:upload_cache] || 3600)
           else
             record.refcount += 1
           end
-          record.save
-          filename = name+'.'+record['image_type']
+          record.save!
         end
+        record.filename
       end
     end
     ##
-    # 画像を保存し、keyを返します。
+    # Persists image data and returns the key
     #
     def store_image(data, options={})
-      save_image(parse_image(data, options), options)
+      save_image(MogileImageStore::Attachment.new(data, options).preprocess!, options)
     end
+    ##
+    # Persists data and returns the key
+    #
+    def store_attachment(data, options={})
+      save_image(MogileImageStore::Attachment.new(data, options), options)
+    end
+
 
     ##
     # 確認画面経由で一時保存されているデータを確定
@@ -118,7 +71,7 @@ class MogileImage < ActiveRecord::Base
         if record.keep_till && record.keep_till < Time.now
           record.keep_till = nil
         end
-        record.save
+        record.save!
       end
     end
 
@@ -131,20 +84,8 @@ class MogileImage < ActiveRecord::Base
       name, ext = key.split('.')
       self.transaction do
         record = find_by_name name
-        # 指定された画像キーを持つレコードが見つからなかったら何もせず戻る
         return unless record
-        if record.refcount > 1
-          record.refcount -= 1
-          record.save
-        else
-          if record.keep_till && record.keep_till > Time.now
-            record.refcount = 0
-            record.save
-          else
-            record.delete
-            purge_image_data(name)
-          end
-        end
+        record.purge
       end
       cleanup_temporary_image
     end
@@ -173,10 +114,9 @@ class MogileImage < ActiveRecord::Base
         self.where('keep_till < ?', Time.now).all.each do |record|
           if record.refcount > 0
             record.keep_till = nil
-            record.save
+            record.save!
           else
-            record.delete
-            purge_image_data(record.name)
+            record.purge
           end
         end
       end
@@ -186,6 +126,16 @@ class MogileImage < ActiveRecord::Base
       key = Array.wrap(key).uniq
       names = key.map{|k| k.split('.').first }
       key.count == where(:name => names).count
+    end
+
+    ##
+    # :nodoc:
+    def mogilefs_connection
+      @@mogilefs ||= MogileFS::MogileFS.new({
+        :domain => MogileImageStore.backend['domain'],
+        :hosts  => MogileImageStore.backend['hosts'],
+        :timeout => MogileImageStore.backend['timeout'] || 3
+      })
     end
 
     protected
@@ -200,13 +150,13 @@ class MogileImage < ActiveRecord::Base
       # check whether size is allowd
       raise MogileImageStore::SizeNotAllowed unless size_allowed?(size)
 
-      if resize_needed? record, format, size
+      if record.resize_needed_for? format, size
         key = "#{name}.#{format}/#{size}"
       else
         #needs no resizing
         key = "#{name}.#{format}"
       end
-      mg = mogilefs_connect
+      mg = mogilefs_connection
       begin
         return block.call(mg, key)
       rescue MogileFS::Backend::UnknownKeyError
@@ -250,35 +200,6 @@ class MogileImage < ActiveRecord::Base
       background = ::Magick::Image.new(w, h) { self.background_color = color }
       background.composite(img, Magick::CenterGravity, Magick::OverCompositeOp)
     end
-    ##
-    # MogileFSキーからURLを復元する
-    # (Reproxy Cacheクリア用)
-    #
-    def parse_key(key)
-      name, format, size = key.scan(/([0-9a-f]{32})\.(jpg|gif|png)(?:\/(\d+x\d+[a-z]*\d*))?/).shift
-      size ||= 'raw'
-      base = URI.parse(MogileImageStore.backend['base_url'])
-      base.path + size + '/' + name + '.' + format
-    end
-
-    ##
-    # 画像リサイズが必要かどうか判定
-    #
-    def resize_needed?(record, format, size)
-      return false if size == 'raw'
-
-      # 加工が指定されているなら必要
-      w, h, method = size.scan(/(\d+)x(\d+)([a-z]*\d*)/).shift
-      return true if method && !method.empty?
-
-      # オリジナルの画像サイズと比較
-      w, h =  [w, h].map{|i| i.to_i}
-      if w > record.width && h > record.height
-        false
-      else
-        true
-      end
-    end
 
     ##
     # 画像サイズが許可されているかどうか判定
@@ -294,49 +215,82 @@ class MogileImage < ActiveRecord::Base
       return false
     end
 
-    ##
-    # MogileFS上の指定されたハッシュ値を持つ画像データを消去
-    #
-    def purge_image_data(name)
-      mg = mogilefs_connect
-      urls = []
-      mg.each_key(name) do |k|
-        mg.delete k
-        url = parse_key k
-        urls.push(url) if url
-      end
-      if urls.size > 0 && MogileImageStore.backend['reproxy']
-        base = URI.parse(MogileImageStore.backend['base_url'])
-        if MogileImageStore.backend['perlbal']
-          host, port = MogileImageStore.backend['perlbal'].split(':')
-          port ||= 80
-        else
-          host, port = [base.host, base.port]
-        end
-        # Request asynchronously
-        t = Thread.new(host, port, base, urls.join(' ')) do |conn_host, conn_port, perlbal, body|
-          Net::HTTP.start(conn_host, conn_port) do |http|
-            http.post(perlbal.path + 'flush', body, {
-              MogileImageStore::AUTH_HEADER => MogileImageStore.auth_key(body),
-              'Host' => perlbal.host + (perlbal.port != 80 ? ':' + perlbal.port.to_s : ''),
-            })
-          end
-        end
-      end
-    end
+  end
 
-    ##
-    # :nodoc:
-    def mogilefs_connect
-      begin
-        return @@mogilefs
-      rescue
-        @@mogilefs = MogileFS::MogileFS.new({
-          :domain => MogileImageStore.backend['domain'],
-          :hosts  => MogileImageStore.backend['hosts'],
-          :timeout => MogileImageStore.backend['timeout'] || 3
-        })
+  def filename
+    name + '.' + image_type
+  end
+
+  def purge
+    if refcount > 1
+      self.refcount -= 1
+      save!
+    else
+      if keep_till && keep_till > Time.now
+        self.refcount = 0
+        save!
+      else
+        destroy
       end
     end
+  end
+
+  ##
+  # Tells if resizing is needed for given format and size
+  #
+  def resize_needed_for?(format, size)
+    return false if size == 'raw'
+
+    # 加工が指定されているなら必要
+    w, h, method = size.scan(/(\d+)x(\d+)([a-z]*\d*)/).shift
+    return true if method && !method.empty?
+
+    # オリジナルの画像サイズと比較
+    w, h =  [w, h].map{|i| i.to_i}
+    if w > width && h > height
+      false
+    else
+      true
+    end
+  end
+
+  private
+
+  def purge_stored_content
+    mg = self.class.mogilefs_connection
+    urls = []
+    mg.each_key(name) do |k|
+      mg.delete k
+      url = parse_key k
+      urls.push(url) if url
+    end
+    if urls.size > 0 && MogileImageStore.backend['reproxy']
+      base = URI.parse(MogileImageStore.backend['base_url'])
+      if MogileImageStore.backend['perlbal']
+        host, port = MogileImageStore.backend['perlbal'].split(':')
+        port ||= 80
+      else
+        host, port = [base.host, base.port]
+      end
+      # Request asynchronously
+      t = Thread.new(host, port, base, urls.join(' ')) do |conn_host, conn_port, perlbal, body|
+        Net::HTTP.start(conn_host, conn_port) do |http|
+          http.post(perlbal.path + 'flush', body, {
+            MogileImageStore::AUTH_HEADER => MogileImageStore.auth_key(body),
+            'Host' => perlbal.host + (perlbal.port != 80 ? ':' + perlbal.port.to_s : ''),
+          })
+        end
+      end
+    end
+  end
+  ##
+  # Creates URL from MogileFS key
+  # (For reproxy cache clear)
+  #
+  def parse_key(key)
+    name, format, size = key.scan(/([0-9a-f]{32})\.(jpg|gif|png)(?:\/(\d+x\d+[a-z]*\d*))?/).shift
+    size ||= 'raw'
+    base = URI.parse(MogileImageStore.backend['base_url'])
+    base.path + size + '/' + name + '.' + format
   end
 end

@@ -53,12 +53,13 @@ module MogileImageStore
   # 拡張子を画像フォーマットに変換するハッシュ
   EXT_TO_TYPE = { :jpg => 'JPEG', :gif => 'GIF', :png => 'PNG'}
 
-  autoload :ActiveRecord, 'mogile_image_store/active_record'
-  autoload :ValidatesImageAttribute,    'mogile_image_store/validates_image_attribute'
-  autoload :ImageDeletable, 'mogile_image_store/image_deletable'
-  autoload :UrlHelper, 'mogile_image_store/url_helper'
-  autoload :TagHelper, 'mogile_image_store/tag_helper'
-  autoload :FormBuilder, 'mogile_image_store/form_helper'
+  autoload :ActiveRecord,            'mogile_image_store/active_record'
+  autoload :Attachment,              'mogile_image_store/attachment'
+  autoload :FormBuilder,             'mogile_image_store/form_helper'
+  autoload :ImageDeletable,          'mogile_image_store/image_deletable'
+  autoload :TagHelper,               'mogile_image_store/tag_helper'
+  autoload :UrlHelper,               'mogile_image_store/url_helper'
+  autoload :ValidatesImageAttribute, 'mogile_image_store/validates_image_attribute'
 
 end
 

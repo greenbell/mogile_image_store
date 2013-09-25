@@ -36,20 +36,27 @@ module MogileImageStore
       #   has_images :logo
       #   has_images ['banner1', 'banner2']
       #
-      def has_images(columns=nil, options={})
+      def has_attachments(columns=nil, options={})
         cattr_accessor  :image_columns, :image_options
-        attr_accessor  :image_attributes
 
         self.image_columns = Array.wrap(columns || 'image').map!{|item| item.to_sym }
         self.image_options = options.symbolize_keys
 
         class_eval <<-EOV
         include MogileImageStore::ActiveRecord::InstanceMethods
-        include MogileImageStore::ValidatesImageAttribute
 
-        before_validation :validate_images
-        before_save       :save_images
-        after_destroy     :destroy_images
+        before_validation :parse_attachments
+        before_save       :save_attachments
+        after_destroy     :destroy_attachments
+        EOV
+      end
+      alias :has_attachment :has_attachments
+
+      def has_images(columns=nil, options={})
+        has_attachments columns, options.symbolize_keys.merge(:image => true)
+        class_eval <<-EOV
+        include MogileImageStore::ValidatesImageAttribute
+        validate :validate_images
         EOV
       end
       alias :has_image :has_images
@@ -58,65 +65,6 @@ module MogileImageStore
     # 各モデルにincludeされるモジュール
     #
     module InstanceMethods
-      #
-      # before_validateにフック。
-      #
-      def validate_images
-        @image_attributes = HashWithIndifferentAccess.new
-        image_columns.each do |c|
-          if image_options[:confirm] && self[c].is_a?(String) &&
-             !self[c].empty? && self.send(c.to_s + '_changed?')
-            # 確認経由でセットされたキーがまだ存在するかどうかチェック
-            if !MogileImage.key_exist?(self[c])
-              errors[c] << I18n.translate('mogile_image_store.errors.messages.cache_expired')
-              self[c] = nil
-            end
-          else
-            set_image_attributes c
-          end
-        end
-        false if errors.size > 0
-      end
-      #
-      # before_saveにフック。
-      #
-      def save_images
-        @image_attributes ||= HashWithIndifferentAccess.new
-        image_columns.each do |c|
-          next if !self[c]
-          if image_options[:confirm]
-            # 確認あり経由：すでに画像は保存済み
-            next unless self.send(c.to_s + '_changed?')
-            prev_image = self.send(c.to_s+'_was')
-            if prev_image.is_a?(String) && !prev_image.empty?
-              ::MogileImage.destroy_image(prev_image)
-            end
-            ::MogileImage.commit_image(self[c])
-          else
-            # 通常時
-            set_image_attributes(c) unless @image_attributes[c]
-            if !@image_attributes[c]
-              # バリデーションなしで画像ではないファイルが指定された場合はクリアしておく
-              self[c] = nil if self[c].is_a? ActionDispatch::Http::UploadedFile
-              next
-            end
-            prev_image = self.send(c.to_s+'_was')
-            if prev_image.is_a?(String) && !prev_image.empty?
-              ::MogileImage.destroy_image(prev_image)
-            end
-            self[c] = ::MogileImage.save_image(@image_attributes[c])
-          end
-        end
-      end
-      #
-      # after_destroyにフック。
-      #
-      def destroy_images
-        image_columns.each do |c|
-          ::MogileImage.destroy_image(self[c]) if self[c] && destroyed? && frozen?
-        end
-      end
-
       ##
       # 画像ファイルをセットするためのメソッド。
       # formからのアップロード時以外に画像を登録する際などに使用。
@@ -136,39 +84,95 @@ module MogileImageStore
         })
       end
 
-      protected
+      private
 
-      def set_image_attributes(column)
-        file = self[column]
-        return unless file.is_a?(ActionDispatch::Http::UploadedFile)
-
-        # ファイルサイズの判定
-        if file.size > ::MogileImageStore::options[:maxsize]
-          errors[column] <<
-            I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => ::MogileImageStore::options[:maxsize]/1024)
+      ##
+      # Hooked on before_validation
+      #
+      def parse_attachments
+        image_columns.each do |c|
+          if image_options[:confirm] && self[c].is_a?(String) &&
+             !self[c].empty? && self.send(c.to_s + '_changed?')
+            # 確認経由でセットされたキーがまだ存在するかどうかチェック
+            if !MogileImage.key_exist?(self[c])
+              errors[c] << I18n.translate('mogile_image_store.errors.messages.cache_expired')
+              self[c] = nil
+            end
+          else
+            next unless self[c].is_a?(ActionDispatch::Http::UploadedFile)
+            self[c] = MogileImageStore::Attachment.new(
+              self[c].read, :type => self[c].content_type, :keep_exif => self.image_options[:keep_exif])
+          end
         end
+      end
 
-        begin
-          img_attr = MogileImage.parse_image(file.read,
-                                             :keep_exif => self.image_options[:keep_exif])
-        rescue ::MogileImageStore::InvalidImage
-          # 画像ではない場合
-          errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_image')
-          return
+      ##
+      # Hooked on before_save
+      #
+      def save_attachments
+        image_columns.each do |c|
+          next if !self[c]
+          
+          if image_options[:confirm]
+            # with confirmation: image is already saved
+            next unless self.send(c.to_s + '_changed?')
+            prev_image = self.send(c.to_s+'_was')
+            if prev_image.is_a?(String) && !prev_image.empty?
+              ::MogileImage.destroy_image(prev_image)
+            end
+            ::MogileImage.commit_image(self[c])
+          else
+            # no confirmation
+            if self[c].is_a?(ActionDispatch::Http::UploadedFile)
+              self[c] = MogileImageStore::Attachment.new(
+                self[c].read, :type => self[c].content_type, :keep_exif => self.image_options[:keep_exif])
+            elsif !self[c].is_a?(MogileImageStore::Attachment)
+              next
+            end
+            prev_image = self.send(c.to_s+'_was')
+            if prev_image.is_a?(String) && !prev_image.empty?
+              ::MogileImage.destroy_image(prev_image)
+            end
+            self[c] = ::MogileImage.save_image(self[c])
+          end
         end
-
-        unless ::MogileImageStore::IMAGE_FORMATS.include?(img_attr[:type])
-          # 対応フォーマットではない場合
-          errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_valid_type')
-          return
+      end
+      ##
+      # Hooked on after_destroy
+      #
+      def destroy_attachments
+        image_columns.each do |c|
+          ::MogileImage.destroy_image(self[c]) if self[c] && destroyed? && frozen?
         end
+      end
 
-        # メタデータを設定
-        @image_attributes[column] = img_attr
+      ##
+      # Image validation
+      #
+      def validate_images
+        image_columns.each do |column|
+          attachment = self[column]
+          next unless attachment.is_a?(MogileImageStore::Attachment)
+          if attachment.size > ::MogileImageStore::options[:maxsize]
+            errors[column] <<
+              I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => ::MogileImageStore::options[:maxsize]/1024)
+          end
 
-        # 確認ありの時はこの時点で仮保存
-        if image_options[:confirm]
-          self[column] = ::MogileImage.save_image(@image_attributes[column], :temporary => true)
+          begin
+            attachment.preprocess!
+          rescue ::MogileImageStore::InvalidImage
+            errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_image')
+          end
+
+          unless attachment.image?
+            # 対応フォーマットではない場合
+            errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_valid_type')
+          end
+
+          # 確認ありの時はこの時点で仮保存
+          if errors.empty? && image_options[:confirm]
+            self[column] = ::MogileImage.save_image(attachment, :temporary => true)
+          end
         end
       end
     end
