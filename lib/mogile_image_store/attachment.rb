@@ -1,15 +1,15 @@
 # encoding: utf-8
-require 'digest/md5'
 
 module MogileImageStore
   class Attachment
-    attr_reader :options, :content, :size, :type, :width, :height
+    attr_reader :options, :content, :name, :size, :extension, :width, :height
 
     def initialize(data, options={})
       @options = options.symbolize_keys
       @content = data
+      @name = Digest::MD5.hexdigest(data)
       @size = @content.size
-      @type = options[:type].try(:to_sym)
+      @extension = extension_for(options[:filename] || '')
     end
 
     def attributes
@@ -19,16 +19,9 @@ module MogileImageStore
        :height     => height}
     end
 
-    def extension
-      type && MogileImageStore::TYPE_TO_EXT[type.upcase]
-    end
-
-    def image?
-      !!extension
-    end
-
-    def name
-      Digest::MD5.hexdigest(content)
+    def extension_for(filename)
+      (MIME::Types.type_for(filename).first || MIME::Type.new('application/octet-stream')).
+        extensions.find{|e| e.length <= 3} || 'bin'
     end
 
     def preprocess!
@@ -41,15 +34,15 @@ module MogileImageStore
       if (filter = ::MogileImageStore.options[:image_filter]) && filter.is_a?(Proc)
         filter.call(imglist)
       end
-      resize = false 
+      resize = false
       resize = true if ::MogileImageStore.options[:maxwidth] &&
           imglist.first.columns > ::MogileImageStore.options[:maxwidth].to_i
       resize = true if ::MogileImageStore.options[:maxheight] &&
           imglist.first.columns > ::MogileImageStore.options[:maxheight].to_i
 
-      strip = (!options[:keep_exif] && 
+      strip = (!options[:keep_exif] &&
                   imglist.inject([]){|r,i| r.concat(i.get_exif_by_entry()) }.any?)
-      if resize || strip
+      if filter || resize || strip
         if resize
           imglist.each do |i|
             i.resize_to_fit!(MogileImageStore.options[:maxwidth],
@@ -64,7 +57,7 @@ module MogileImageStore
       end
       img = imglist.first
       @size = content.size
-      @type = img.format.to_sym
+      @extension = TO_EXTENSION[img.format] or raise UnsupportedImage
       @width = img.columns
       @height = img.rows
       self

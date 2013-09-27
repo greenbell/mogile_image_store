@@ -1,15 +1,7 @@
 # coding: utf-8
-require 'mogilefs'
-require 'net/http'
 
 class MogileImage < ActiveRecord::Base
   extend MogileImageStore::UrlHelper
-
-  CONTENT_TYPES = HashWithIndifferentAccess.new ({
-    :jpg => 'image/jpeg',
-    :gif => 'image/gif',
-    :png => 'image/png',
-  })
 
   before_destroy :purge_stored_content
 
@@ -94,16 +86,14 @@ class MogileImage < ActiveRecord::Base
     # X-REPROXY-FORヘッダでの出力に使う。
     #
     def fetch_urls(name, format, size='raw')
-      [self::CONTENT_TYPES[format.to_sym],
-        retrieve_image(name, format, size) {|mg,key| mg.get_paths key }]
+      [mime_type_for(format), retrieve_image(name, format, size) {|mg,key| mg.get_paths key }]
     end
 
     ##
     # 指定されたキーを持つ画像のデータを取得して返す。
     #
     def fetch_data(name, format, size='raw')
-      [self::CONTENT_TYPES[format.to_sym],
-        retrieve_image(name, format, size) {|mg,key| mg.get_file_data key }]
+      [mime_type_for(format), retrieve_image(name, format, size) {|mg,key| mg.get_file_data key }]
     end
 
     ##
@@ -128,14 +118,16 @@ class MogileImage < ActiveRecord::Base
       key.count == where(:name => names).count
     end
 
-    ##
-    # :nodoc:
     def mogilefs_connection
       @@mogilefs ||= MogileFS::MogileFS.new({
         :domain => MogileImageStore.backend['domain'],
         :hosts  => MogileImageStore.backend['hosts'],
         :timeout => MogileImageStore.backend['timeout'] || 3
       })
+    end
+
+    def mime_type_for(format)
+      MIME::Types.type_for(format).first
     end
 
     protected
@@ -162,7 +154,7 @@ class MogileImage < ActiveRecord::Base
       rescue MogileFS::Backend::UnknownKeyError
         # 画像がまだ生成されていないので生成する
         begin
-          img = ::Magick::Image.from_blob(mg.get_file_data("#{name}.#{record.image_type}")).shift
+          img = Magick::Image.from_blob(mg.get_file_data(record.filename)).shift
         rescue MogileFS::Backend::UnknownKeyError
           raise MogileImageStore::ImageNotFound
         end
@@ -187,7 +179,7 @@ class MogileImage < ActiveRecord::Base
           img.resize_to_fit! w, h
         end
       end
-      new_format = ::MogileImageStore::EXT_TO_TYPE[format.to_sym]
+      new_format = MogileImageStore::TO_FORMAT[format]
       img.format = new_format if img.format != new_format
       img
     end
@@ -197,7 +189,7 @@ class MogileImage < ActiveRecord::Base
     def resize_with_fill(img, w, h, n, color)
       n ||= 0
       img.resize_to_fit! w-n*2, h-n*2
-      background = ::Magick::Image.new(w, h) { self.background_color = color }
+      background = Magick::Image.new(w, h) { self.background_color = color }
       background.composite(img, Magick::CenterGravity, Magick::OverCompositeOp)
     end
 
@@ -214,7 +206,6 @@ class MogileImage < ActiveRecord::Base
       end
       return false
     end
-
   end
 
   def filename
@@ -288,7 +279,7 @@ class MogileImage < ActiveRecord::Base
   # (For reproxy cache clear)
   #
   def parse_key(key)
-    name, format, size = key.scan(/([0-9a-f]{32})\.(jpg|gif|png)(?:\/(\d+x\d+[a-z]*\d*))?/).shift
+    name, format, size = key.scan(/([0-9a-f]{32})\.([^\/]+)(?:\/(\d+x\d+[a-z]*\d*))?/).shift
     size ||= 'raw'
     base = URI.parse(MogileImageStore.backend['base_url'])
     base.path + size + '/' + name + '.' + format

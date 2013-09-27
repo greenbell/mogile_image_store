@@ -51,7 +51,7 @@ describe Confirm, :mogilefs => true do
       sleep(1)
       MogileImage.cleanup_temporary_image
       @confirm.valid?.should be_false
-      @confirm.errors[:image].should == ["has been expired. Please upload again."]
+      @confirm.errors[:image].should == ["has expired. Please upload again."]
       @confirm.image.should be_nil
       MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9').should be_nil
     end

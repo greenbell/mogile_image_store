@@ -19,11 +19,11 @@ module MogileImageStore
       def validate_each(record, attribute, value)
         return unless value.is_a? MogileImageStore::Attachment
         if options[:type]
-          typearr = Array.wrap(options[:type]).map{ |i| ::MogileImageStore::EXT_TO_TYPE[i.to_sym] }
-          unless typearr.include?(value.type.to_s)
+          allowed = Array.wrap(options[:type]).map(&:to_s)
+          unless allowed.include?(value.extension)
             record.errors[attribute] << (
               options[:type_message] ||
-              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', :type => typearr.join(','))
+              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', :type => allowed.map{|t| MogileImageStore::TO_FORMAT[t]}.join(','))
             )
           end
         end

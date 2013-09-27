@@ -13,7 +13,7 @@ en:
         height_smaller:     "'s height must be smaller than %{height} pixels."
         height_larger:      "'s height must be larger than %{height} pixels."
         height:             "'s height must be %{height} pixels."
-        cache_expired:      "has been expired. Please upload again."
+        cache_expired:      "has expired. Please upload again."
       flashes:
         delete_failed:      "Failed to delete image."
 

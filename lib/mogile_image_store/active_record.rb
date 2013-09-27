@@ -71,6 +71,7 @@ module MogileImageStore
       #
       def set_image_file(column, path)
         self[column] = ActionDispatch::Http::UploadedFile.new({
+          :filename => File.basename(path),
           :tempfile => File.open(path)
         })
       end
@@ -101,7 +102,7 @@ module MogileImageStore
           else
             next unless self[c].is_a?(ActionDispatch::Http::UploadedFile)
             self[c] = MogileImageStore::Attachment.new(
-              self[c].read, :type => self[c].content_type, :keep_exif => self.image_options[:keep_exif])
+              self[c].read, :filename => self[c].original_filename, :keep_exif => self.image_options[:keep_exif])
           end
         end
       end
@@ -118,9 +119,9 @@ module MogileImageStore
             next unless self.send(c.to_s + '_changed?')
             prev_image = self.send(c.to_s+'_was')
             if prev_image.is_a?(String) && !prev_image.empty?
-              ::MogileImage.destroy_image(prev_image)
+              MogileImage.destroy_image(prev_image)
             end
-            ::MogileImage.commit_image(self[c])
+            MogileImage.commit_image(self[c])
           else
             # no confirmation
             if self[c].is_a?(ActionDispatch::Http::UploadedFile)
@@ -131,9 +132,9 @@ module MogileImageStore
             end
             prev_image = self.send(c.to_s+'_was')
             if prev_image.is_a?(String) && !prev_image.empty?
-              ::MogileImage.destroy_image(prev_image)
+              MogileImage.destroy_image(prev_image)
             end
-            self[c] = ::MogileImage.save_image(self[c])
+            self[c] = MogileImage.save_image(self[c])
           end
         end
       end
@@ -142,7 +143,7 @@ module MogileImageStore
       #
       def destroy_attachments
         image_columns.each do |c|
-          ::MogileImage.destroy_image(self[c]) if self[c] && destroyed? && frozen?
+          MogileImage.destroy_image(self[c]) if self[c] && destroyed? && frozen?
         end
       end
 
@@ -153,25 +154,22 @@ module MogileImageStore
         image_columns.each do |column|
           attachment = self[column]
           next unless attachment.is_a?(MogileImageStore::Attachment)
-          if attachment.size > ::MogileImageStore::options[:maxsize]
+          if attachment.size > MogileImageStore.options[:maxsize]
             errors[column] <<
-              I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => ::MogileImageStore::options[:maxsize]/1024)
+              I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => MogileImageStore.options[:maxsize]/1024)
           end
 
           begin
             attachment.preprocess!
-          rescue ::MogileImageStore::InvalidImage
+          rescue MogileImageStore::InvalidImage
             errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_image')
-          end
-
-          unless attachment.image?
-            # 対応フォーマットではない場合
+          rescue MogileImageStore::UnsupportedImage
             errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_valid_type')
           end
 
           # 確認ありの時はこの時点で仮保存
           if errors.empty? && image_options[:confirm]
-            self[column] = ::MogileImage.save_image(attachment, :temporary => true)
+            self[column] = MogileImage.save_image(attachment, :temporary => true)
           end
         end
       end
