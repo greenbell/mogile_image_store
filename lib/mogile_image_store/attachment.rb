@@ -24,6 +24,11 @@ module MogileImageStore
         extensions.find{|e| e.length <= 3} || 'bin'
     end
 
+    def persist(mogile_image)
+      mogile_image.attributes = attributes
+      MogileImage.mogilefs_connection.store_content mogile_image.filename, MogileImageStore.backend['class'], content
+    end
+
     def preprocess!
       imglist = ::Magick::ImageList.new
       begin

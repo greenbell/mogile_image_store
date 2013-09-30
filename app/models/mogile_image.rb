@@ -6,35 +6,9 @@ class MogileImage < ActiveRecord::Base
   before_destroy :purge_stored_content
 
   class << self
-    ##
-    # 同一ハッシュのレコードが存在するかどうか調べ、
-    # なければレコードを作成すると同時にMogileFSに保存する。
-    # あれば参照カウントを1増やす。
-    #
     def save_image(attachment, options = {})
-      temporary = options.delete(:temporary) || false
-      transaction do
-        record = find_or_initialize_by_name attachment.name
-        unless record.persisted?
-          record.attributes = attachment.attributes
-          if temporary
-            record.refcount = 0
-            record.keep_till = Time.now + (MogileImageStore.options[:upload_cache] || 3600)
-          else
-            record.refcount = 1
-          end
-          record.save!
-          mogilefs_connection.store_content record.filename, MogileImageStore.backend['class'], attachment.content
-        else
-          if temporary
-            record.keep_till = Time.now + (MogileImageStore.options[:upload_cache] || 3600)
-          else
-            record.refcount += 1
-          end
-          record.save!
-        end
-        record.filename
-      end
+      find_or_initialize_by_name(attachment.name).
+        send(options.delete(:temporary) ? :store_temporarily : :store, attachment)
     end
     ##
     # Persists image data and returns the key
@@ -243,6 +217,27 @@ class MogileImage < ActiveRecord::Base
     else
       true
     end
+  end
+
+  def store(attachment)
+    if persisted?
+      self.refcount += 1
+    else
+      self.refcount = 1
+      attachment.persist(self)
+    end
+    save!
+    filename
+  end
+
+  def store_temporarily(attachment)
+    unless persisted?
+      self.refcount = 0
+      attachment.persist(self)
+    end
+    self.keep_till = Time.now + (MogileImageStore.options[:upload_cache] || 3600)
+    save!
+    filename
   end
 
   private

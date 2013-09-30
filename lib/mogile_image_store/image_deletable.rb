@@ -28,7 +28,7 @@ module MogileImageStore
 
         model = eval(model.to_s) unless model.is_a? ::ActiveRecord::Base
 
-        self.image_model  = model || eval(self.name[/(.+)Controller/,1].singularize)
+        self.image_model  = model || self.name[/(.+)Controller/,1].singularize.constantize
 
         class_eval <<-EOV
         include MogileImageStore::ImageDeletable::InstanceMethods

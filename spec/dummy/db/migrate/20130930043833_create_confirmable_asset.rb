@@ -1,6 +1,6 @@
-class CreateAssetTests < ActiveRecord::Migration
+class CreateConfirmableAsset < ActiveRecord::Migration
   def self.up
-    create_table :asset_tests do |t|
+    create_table :confirmable_assets do |t|
       t.string :name, :limit => 32
       t.string :asset, :limit => 36
 
@@ -9,6 +9,6 @@ class CreateAssetTests < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :asset_tests
+    drop_table :confirmable_assets
   end
 end

@@ -5,6 +5,7 @@ require 'digest/sha1'
 require 'mime/types'
 require 'mogilefs'
 require 'net/http'
+require 'RMagick'
 
 ##
 # == 概要
