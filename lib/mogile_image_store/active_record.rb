@@ -125,22 +125,24 @@ module MogileImageStore
       extend ActiveSupport::Concern
 
       included do
-        before_save do
-          image_columns.each do |c|
-            next if !self[c]
+        before_save :save_attachments
+      end
 
-            if self[c].is_a?(ActionDispatch::Http::UploadedFile)
-              self[c] = MogileImageStore::Attachment.new(
-                self[c].read, :type => self[c].content_type, :keep_exif => self.image_options[:keep_exif])
-            elsif !self[c].is_a?(MogileImageStore::Attachment)
-              next
-            end
-            prev_image = self.send(c.to_s+'_was')
-            if prev_image.is_a?(String) && !prev_image.empty?
-              MogileImage.destroy_image(prev_image)
-            end
-            self[c] = MogileImage.save_image(self[c])
+      def save_attachments
+        image_columns.each do |c|
+          next if !self[c]
+
+          if self[c].is_a?(ActionDispatch::Http::UploadedFile)
+            self[c] = MogileImageStore::Attachment.new(
+              self[c].read, :type => self[c].content_type, :keep_exif => self.image_options[:keep_exif])
+          elsif !self[c].is_a?(MogileImageStore::Attachment)
+            next
           end
+          prev_image = self.send(c.to_s+'_was')
+          if prev_image.is_a?(String) && !prev_image.empty?
+            MogileImage.destroy_image(prev_image)
+          end
+          self[c] = MogileImage.save_image(self[c])
         end
       end
     end
@@ -149,39 +151,43 @@ module MogileImageStore
       extend ActiveSupport::Concern
 
       included do
-        after_validation do
-          if errors.empty?
-            image_columns.each do |column|
-              next unless self[column].is_a? MogileImageStore::Attachment
-              self[column] = MogileImage.save_image(self[column], :temporary => true)
-            end
-          end
-        end
+        after_validation :parse_attachments
+        before_save      :commit_attachments
+        validate         :validate_attachments_for_confirmation
+      end
 
-        before_save do
-          image_columns.each do |c|
-            next if !self[c]
-
-            # with confirmation: image is already saved
-            next unless self.send(c.to_s + '_changed?')
-            prev_image = self.send(c.to_s+'_was')
-            if prev_image.is_a?(String) && !prev_image.empty?
-              MogileImage.destroy_image(prev_image)
-            end
-            MogileImage.commit_image(self[c])
-          end
-        end
-
-        validate do
+      def parse_attachments
+        if errors.empty?
           image_columns.each do |column|
-            attachment = self[column]
-            if attachment.is_a? String
-              if image_options[:confirm] && !self[column].empty? && self.send(column.to_s + '_changed?')
-                unless MogileImage.key_exist?(self[column])
-                  # the attachment with given key no longer exists
-                  errors[column] << I18n.translate('mogile_image_store.errors.messages.cache_expired')
-                  self[column] = nil
-                end
+            next unless self[column].is_a? MogileImageStore::Attachment
+            self[column] = MogileImage.save_image(self[column], :temporary => true)
+          end
+        end
+      end
+
+      def commit_attachments
+        image_columns.each do |c|
+          next if !self[c]
+
+          # with confirmation: image is already saved
+          next unless self.send(c.to_s + '_changed?')
+          prev_image = self.send(c.to_s+'_was')
+          if prev_image.is_a?(String) && prev_image.present?
+            MogileImage.destroy_image(prev_image)
+          end
+          MogileImage.commit_image(self[c])
+        end
+      end
+
+      def validate_attachments_for_confirmation
+        image_columns.each do |column|
+          attachment = self[column]
+          if attachment.is_a? String
+            if image_options[:confirm] && !self[column].empty? && self.send(column.to_s + '_changed?')
+              unless MogileImage.key_exist?(self[column])
+                # the attachment with given key no longer exists
+                errors[column] << I18n.translate('mogile_image_store.errors.messages.cache_expired')
+                self[column] = nil
               end
             end
           end

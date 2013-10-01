@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class MogileImagesController < ApplicationController
+class MogileImagesController < ActionController::Base
   protect_from_forgery :except => [:flush]
 
   rescue_from MogileImageStore::ImageNotFound, :with => :error_404
@@ -20,7 +20,7 @@ class MogileImagesController < ApplicationController
       render :nothing => true
     else
       type, data = MogileImage.fetch_data(params[:name], params[:format], params[:size])
-      response.header['Content-Type'] = type
+      response.header['Content-Type'] = type.to_s
       render :layout => false, :text => data
     end
   end

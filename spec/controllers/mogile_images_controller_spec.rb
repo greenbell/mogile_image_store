@@ -16,9 +16,12 @@ describe MogileImagesController do
         @mogadm.create_class  MogileImageStore.backend['domain'], MogileImageStore.backend['class'], 2 rescue nil
       end
       @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
-      @image_test = Factory.build(:image_test)
-      @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
-      @image_test.save
+      image_test = Factory.build(:image_test)
+      image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
+      image_test.save
+      asset_test = Factory.build(:asset_test)
+      asset_test.set_image_file :asset, "#{File.dirname(__FILE__)}/../sample.txt"
+      asset_test.save
     end
     before do
       @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
@@ -40,6 +43,13 @@ describe MogileImagesController do
       img.format.should == 'JPEG'
       img.columns.should == 725
       img.rows.should == 544
+    end
+
+    it "should return raw text file" do
+      get 'show', :name => 'd2863cc5448b49cfd0ab49dcb0936a89', :format => 'txt', :size => 'raw'
+      response.should be_success
+      response.header['Content-Type'].should == 'text/plain'
+      response.body.should == "This is sample.\n"
     end
 
     it "should return status 404 when requested non-existent image" do

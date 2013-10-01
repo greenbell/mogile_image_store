@@ -7,10 +7,10 @@ describe MogileImage do
   it{ { :get => '/image/200x100/0123456789abcdef0123456789abcdef.png' }.should route_to(:controller => 'mogile_images', :action => 'show', :size => '200x100', :name => '0123456789abcdef0123456789abcdef', :format => 'png') }
   it{ { :get => '/image/200x100fill/0123456789abcdef0123456789abcdef.png' }.should route_to(:controller => 'mogile_images', :action => 'show', :size => '200x100fill', :name => '0123456789abcdef0123456789abcdef', :format => 'png') }
   it{ { :get => '/image/200x100fill3/0123456789abcdef0123456789abcdef.png' }.should route_to(:controller => 'mogile_images', :action => 'show', :size => '200x100fill3', :name => '0123456789abcdef0123456789abcdef', :format => 'png') }
+  it{ { :get => '/image/raw/0123456789abcdef0123456789abcdef.pdf' }.should route_to(:controller => 'mogile_images', :action => 'show', :size => 'raw', :name => '0123456789abcdef0123456789abcdef', :format => 'pdf') }
   it{ { :post => '/image/flush' }.should route_to(:controller => 'mogile_images', :action => 'flush') }
   it{ { :get => '/image/raw/0123456789abcdef0123456789abcdef' }.should_not be_routable }
   it{ { :get => '/image/raw/0123456789abcdef0123456789abcdef' }.should_not be_routable }
-  it{ { :get => '/image/raw/0123456789abcdef0123456789abcdef.pdf' }.should_not be_routable }
   it{ { :post => '/image/raw/0123456789abcdef0123456789abcdef.jpg' }.should_not be_routable }
   it{ { :put => '/image/raw/0123456789abcdef0123456789abcdef.jpg' }.should_not be_routable }
   it{ { :delete => '/image/raw/0123456789abcdef0123456789abcdef.jpg' }.should_not be_routable }
