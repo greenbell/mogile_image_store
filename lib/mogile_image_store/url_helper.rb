@@ -1,25 +1,10 @@
 # coding: utf-8
 
-module MogileImageStore # :nodoc:
-  ##
-  # == 概要
-  # 画像URL用ヘルパー
-  #
+module MogileImageStore
   module UrlHelper
     extend ActiveSupport::Concern
     ##
-    # ===画像URL取得メソッド
-    #
-    # 保存された画像のURLを返します。
-    #
-    # ==== _key_
-    # 画像のキーを指定します。
-    #
-    # ==== _options_
-    # w, h, method, size, format
-    #
-    # ====返り値
-    # 画像のURLを返します。
+    # Retrieves an image url with given key.
     #
     def image_url(key, options = {})
       if !key || !key.respond_to?(:empty?) || key.empty?
@@ -46,6 +31,10 @@ module MogileImageStore # :nodoc:
       end
       
       MogileImageStore.backend['base_url'] + size + '/' + key
+    end
+
+    def attachment_url(key)
+      MogileImageStore.backend['base_url'] + 'raw/' + key
     end
   end
 end
