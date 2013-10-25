@@ -37,7 +37,7 @@ module MogileImageStore # :nodoc:
     #
     def image_field(method, options = {})
       options = options.symbolize_keys
-      confirm   = options.delete(:confirm) || false
+      confirm = options.delete(:confirm) || false
 
       image_options = options.delete(:image_options) || {}
       input_options = options.delete(:input_options) || {}
@@ -73,6 +73,48 @@ module MogileImageStore # :nodoc:
         output += tag('br')
       end
       # 画像アップロード用フィールド表示
+      if confirm
+        if @object[method]
+          output +=  @template.hidden_field(@object_name, method, objectify_options(input_options))
+        end
+      else
+        output +=  @template.file_field(@object_name, method, objectify_options(input_options))
+      end
+    end
+
+    def attachment_field(method, options = {})
+      options = options.symbolize_keys
+      confirm = options.delete(:confirm) || false
+
+      input_options = options.delete(:input_options) || {}
+      if confirm
+        deletable = false
+        exists = @object[method].is_a?(String) && !@object[method].empty?
+      else
+        deletable = options.delete(:deletable)
+        link_options  = options.delete(:link_options) || {}
+        exists = @object[method].is_a?(String) && !@object[method].empty? && @object.persisted?
+      end
+
+      output = ''.html_safe
+      if exists
+        # show link to the content
+        output += @template.link_to((I18n.translate!('mogile_image_store.form_helper.link') rescue '[link]'),
+                                    attachment_url(@object[method]), :target => '_blank')
+        # show delete link
+        if deletable === nil || deletable
+          output += " "
+          output += @template.link_to(
+            (I18n.translate!('mogile_image_store.form_helper.delete') rescue 'delete'),
+            { :controller => @template.controller.controller_name,
+              :action => 'image_delete',
+              :id => @object,
+              :column => method, },
+              { :confirm => I18n.translate('mogile_image_store.notices.confirm') }.merge(link_options),
+          )
+        end
+        output += tag('br')
+      end
       if confirm
         if @object[method]
           output +=  @template.hidden_field(@object_name, method, objectify_options(input_options))

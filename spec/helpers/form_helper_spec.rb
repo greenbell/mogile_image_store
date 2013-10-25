@@ -1,8 +1,8 @@
 # coding: utf-8
 require 'spec_helper'
 
-describe MogileImageStore::FormBuilder do
-  context "MogileFS backend", :mogilefs => true do
+describe MogileImageStore::FormBuilder, :mogilefs => true do
+  describe "#image_field" do
     before do
       @image_test = Factory.build(:image_test)
     end
@@ -76,6 +76,45 @@ describe MogileImageStore::FormBuilder do
       it "should show hidden field when confirm" do
         form_for(@confirm) do |f|
           f.image_field(:image, :confirm => true).should == '<img src="'+MogileImageStore.backend['base_url']+'raw/60de57a8f5cd0a10b296b1f553cb41a9.png" /><br /><input id="confirm_image" name="confirm[image]" type="hidden" value="60de57a8f5cd0a10b296b1f553cb41a9.png" />'
+        end
+      end
+    end
+  end
+
+  describe "#attachment_field" do
+    before do
+      @image_test = Factory.build(:image_test)
+    end
+
+    it "should show file field" do
+      form_for(@image_test) do |f|
+        f.attachment_field(:image).should == '<input id="image_test_image" name="image_test[image]" type="file" />'
+      end
+    end
+
+    context "when attachment exists" do
+      before do
+        @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.png"
+        @image_test.save
+      end
+
+      it "should show file field with delete link" do
+        form_for(@image_test) do |f|
+          f.attachment_field(:image).should == '<a href="'+MogileImageStore.backend['base_url']+'raw/60de57a8f5cd0a10b296b1f553cb41a9.png" target="_blank">[link]</a> <a href="/test/'+@image_test.id.to_s+'/image_delete/image" data-confirm="Are you sure?">delete</a><br /><input id="image_test_image" name="image_test[image]" type="file" />'
+        end
+      end
+    end
+
+    context "on confirmation" do
+      before do
+        @confirm = Factory.build(:confirm)
+        @confirm.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.png"
+        @confirm.valid?
+      end
+
+      it "should show hidden field" do
+        form_for(@confirm) do |f|
+          f.attachment_field(:image, :confirm => true).should == '<a href="'+MogileImageStore.backend['base_url']+'raw/60de57a8f5cd0a10b296b1f553cb41a9.png" target="_blank">[link]</a><br /><input id="confirm_image" name="confirm[image]" type="hidden" value="60de57a8f5cd0a10b296b1f553cb41a9.png" />'
         end
       end
     end

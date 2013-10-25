@@ -22,4 +22,4 @@ ja:
 
     form_helper:
       delete: "削除"
-
+      link:   "[リンク]"

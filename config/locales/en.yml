@@ -22,3 +22,4 @@ en:
 
     form_helper:
       delete: "delete"
+      link:   "[link]"
