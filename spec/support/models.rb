@@ -174,3 +174,9 @@ class KeepExif < ActiveRecord::Base
   self.table_name = 'image_tests'
   has_images :image, :keep_exif => true
 end
+
+class AttachmentTypeTxt < Tableless
+  column :asset, :string
+  has_attachment :asset
+  validates :asset, :attachment => { :type => :txt }
+end

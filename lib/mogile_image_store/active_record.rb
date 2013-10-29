@@ -38,6 +38,7 @@ module MogileImageStore
         self.image_options = options.symbolize_keys
 
         include MogileImageStore::ActiveRecord::Shared
+        include MogileImageStore::Validators
         if image_options[:confirm]
           include MogileImageStore::ActiveRecord::Confirmable
         else
@@ -49,7 +50,6 @@ module MogileImageStore
       def has_images(columns='image', options={})
         has_attachments columns, options.symbolize_keys
 
-        include MogileImageStore::ValidatesImageAttribute
         validate :validate_images
       end
       alias :has_image :has_images

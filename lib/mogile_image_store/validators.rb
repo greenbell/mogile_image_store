@@ -1,21 +1,19 @@
 # encoding: utf-8
 
 module MogileImageStore
-  ##
-  # 画像をバリデートします。
-  #
-  # ==== 例:
-  #   validates :image, :image_attribute => { :type => [:jpg, :png] }
-  #   validates :image, :image_attribute => { :type => [:jpg, :png], :type_message => 'jpeg or png' }
-  #   validates :image, :image_attribute => { :type => :jpg, :maxsize = 500.kilobytes, :minwidth => 200, :minheight => 200 }
-  #   validates :image, :image_attribute => { :type => :jpg, :width => 500, :height => 420 }
-  #   
-  #   validates_image_attribute_of :image, :type => :jpg, :width => 500, :height => 420
-  # 
-  module ValidatesImageAttribute
+  module Validators
     extend ActiveSupport::Concern
-
-    class ImageAttributeValidator < ActiveModel::EachValidator # :nodoc:
+    ##
+    # Validates image attributes.
+    # ==== example:
+    #   validates :image, :image_attribute => { :type => [:jpg, :png] }
+    #   validates :image, :image_attribute => { :type => [:jpg, :png], :type_message => 'jpeg or png' }
+    #   validates :image, :image_attribute => { :type => :jpg, :maxsize = 500.kilobytes, :minwidth => 200, :minheight => 200 }
+    #   validates :image, :image_attribute => { :type => :jpg, :width => 500, :height => 420 }
+    #   
+    #   validates_image_attribute_of :image, :type => :jpg, :width => 500, :height => 420
+    # 
+    class ImageAttributeValidator < ActiveModel::EachValidator
       def validate_each(record, attribute, value)
         return unless value.is_a? MogileImageStore::Attachment
         if options[:type]
@@ -94,8 +92,32 @@ module MogileImageStore
       end
     end
 
+    ##
+    # Validates attachment format.
+    # ==== example:
+    #   validates :asset, :attachment => { :type => [:pdf] }
+    #
+    class AttachmentValidator < ActiveModel::EachValidator
+      def validate_each(record, attribute, value)
+        return unless value.is_a? MogileImageStore::Attachment
+        if options[:type]
+          allowed = Array.wrap(options[:type]).map(&:to_s)
+          unless allowed.include?(value.extension)
+            record.errors[attribute] << (
+              options[:type_message] ||
+              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', :type => allowed.join(','))
+            )
+          end
+        end
+      end
+    end
+
     module ClassMethods
       def validates_image_attribute_of(*attr_names)
+        validates_with ImageAttributeValidator, _merge_attributes(attr_names)
+      end
+
+      def validates_attachment_attribute_of(*attr_names)
         validates_with ImageAttributeValidator, _merge_attributes(attr_names)
       end
     end

@@ -56,13 +56,13 @@ module MogileImageStore
   TO_FORMAT = TO_EXTENSION.invert.freeze
 
 
-  autoload :ActiveRecord,            'mogile_image_store/active_record'
-  autoload :Attachment,              'mogile_image_store/attachment'
-  autoload :FormBuilder,             'mogile_image_store/form_helper'
-  autoload :ImageDeletable,          'mogile_image_store/image_deletable'
-  autoload :TagHelper,               'mogile_image_store/tag_helper'
-  autoload :UrlHelper,               'mogile_image_store/url_helper'
-  autoload :ValidatesImageAttribute, 'mogile_image_store/validates_image_attribute'
+  autoload :ActiveRecord,   'mogile_image_store/active_record'
+  autoload :Attachment,     'mogile_image_store/attachment'
+  autoload :FormBuilder,    'mogile_image_store/form_helper'
+  autoload :ImageDeletable, 'mogile_image_store/image_deletable'
+  autoload :TagHelper,      'mogile_image_store/tag_helper'
+  autoload :UrlHelper,      'mogile_image_store/url_helper'
+  autoload :Validators,     'mogile_image_store/validators'
 
 end
 
