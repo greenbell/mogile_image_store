@@ -101,7 +101,7 @@ class MogileImage < ActiveRecord::Base
     end
 
     def mime_type_for(format)
-      MIME::Types.type_for(format).first
+      MIME::Types.type_for(format.to_s).first
     end
 
     protected
