@@ -12,7 +12,7 @@ class MogileImagesController < ActionController::Base
   def show
     if MogileImageStore.backend['reproxy']
       type, urls = MogileImage.fetch_urls(params[:name], params[:format], params[:size])
-      response.header['Content-Type'] = type
+      response.header['Content-Type'] = type.to_s
       response.header['X-REPROXY-URL'] = urls.join(' ')
       if MogileImageStore.backend['cache']
         response.header['X-REPROXY-CACHE-FOR'] = "#{MogileImageStore.backend['cache']}; Content-Type"
