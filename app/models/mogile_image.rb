@@ -153,7 +153,7 @@ class MogileImage < ActiveRecord::Base
           img.resize_to_fit! w, h
         end
       end
-      new_format = MogileImageStore::TO_FORMAT[format]
+      new_format = MogileImageStore::TO_FORMAT[format.to_s]
       img.format = new_format if img.format != new_format
       img
     end

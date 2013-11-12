@@ -165,6 +165,14 @@ describe ImageTest do
            'bcadded5ee18bfa7c99834f307332b02.jpg/600x450']
       end
 
+      it "does not break when symbol is given as format" do
+        content_type, data = MogileImage.fetch_data('bcadded5ee18bfa7c99834f307332b02', :jpg, '600x450')
+        content_type.should == 'image/jpeg'
+        @mg.list_keys('').shift.sort.should ==
+          ['60de57a8f5cd0a10b296b1f553cb41a9.png', 'bcadded5ee18bfa7c99834f307332b02.jpg',
+           'bcadded5ee18bfa7c99834f307332b02.jpg/600x450']
+      end
+
       it "should return raw jpeg image when requested larger size" do
         content_type, data = MogileImage.fetch_data('bcadded5ee18bfa7c99834f307332b02', 'jpg', '800x600')
         content_type.should == 'image/jpeg'

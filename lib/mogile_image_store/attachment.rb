@@ -62,7 +62,7 @@ module MogileImageStore
       end
       img = imglist.first
       @size = content.size
-      @extension = TO_EXTENSION[img.format] or raise UnsupportedImage
+      @extension = TO_EXTENSION[img.format.to_s] or raise UnsupportedImage
       @width = img.columns
       @height = img.rows
       self
