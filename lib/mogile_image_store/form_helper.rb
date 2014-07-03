@@ -66,8 +66,9 @@ module MogileImageStore # :nodoc:
             { :controller => @template.controller.controller_name,
               :action => 'image_delete',
               :id => @object,
-              :column => method, },
-              { :confirm => I18n.translate('mogile_image_store.notices.confirm') }.merge(link_options),
+              :column => method
+            },
+            {:data => {:confirm => I18n.translate('mogile_image_store.notices.confirm')}}.merge(link_options),
           )
         end
         output += tag('br')
