@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "mogilefs-client"
-  spec.add_runtime_dependency "rails", "~> 3.0"
+  spec.add_runtime_dependency "rails", ">= 3.0", "<5.0"
   spec.add_runtime_dependency "mime-types"
   spec.add_runtime_dependency "rmagick"
   spec.add_development_dependency "bundler", "~> 1.3"

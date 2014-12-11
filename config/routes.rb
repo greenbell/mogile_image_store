@@ -3,15 +3,15 @@ Rails.application.routes.draw do
     mount_at = MogileImageStore.backend['mount_at']
 
     if mount_at
-      match "#{mount_at}:size/:name.:format", :to => "mogile_images#show", :via => 'get', :constraints => {
+      get "#{mount_at}:size/:name.:format", :to => "mogile_images#show", :constraints => {
         :size => /(raw|\d+x\d+[a-z]*\d*)/,
         :name =>/[0-9a-f]{0,32}/,
         :format =>/(\w+)/,
       }
-      match "#{mount_at}flush", :to => "mogile_images#flush", :via => 'post'
+      post "#{mount_at}flush", :to => "mogile_images#flush"
     end
 
-    match ':controller/:id/image_delete/:column', :action => 'image_delete'
+    delete ':controller/:id/image_delete/:column', :action => 'image_delete'
   rescue NoMethodError
     #do nothing
   end
