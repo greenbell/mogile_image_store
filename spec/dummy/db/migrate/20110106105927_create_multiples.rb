@@ -6,7 +6,7 @@ class CreateMultiples < ActiveRecord::Migration
       t.string :banner1, limit: 36
       t.string :banner2, limit: 36
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 

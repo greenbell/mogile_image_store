@@ -4,7 +4,7 @@ class CreateAssetTests < ActiveRecord::Migration
       t.string :name, limit: 32
       t.string :asset, limit: 36
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 

@@ -8,7 +8,7 @@ ActiveRecord::Schema.define(version: 0) do
       t.integer    :height
       t.integer    :refcount
       t.datetime   :keep_till
-      t.timestamps
+      t.timestamps null: false
     end
 
     add_index :mogile_images, [:name]

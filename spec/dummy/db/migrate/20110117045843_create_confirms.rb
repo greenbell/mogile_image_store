@@ -4,7 +4,7 @@ class CreateConfirms < ActiveRecord::Migration
       t.string :name
       t.string :image, limit: 36
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 

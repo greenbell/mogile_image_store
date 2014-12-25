@@ -4,7 +4,7 @@ class CreateImageTests < ActiveRecord::Migration
       t.string :name, limit: 32
       t.string :image, limit: 36
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 
