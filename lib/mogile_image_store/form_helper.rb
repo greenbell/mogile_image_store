@@ -46,13 +46,16 @@ module MogileImageStore # :nodoc:
         image_options[:h] ||= 0
         image_options[:link] = false
         deletable = false
-        show_image = @object[method].is_a?(String) && !@object[method].empty?
+        show_image = @object[method].is_a?(String) && @object[method].present?
       else
         image_options[:w] = options[:w] if options[:w]
         image_options[:h] = options[:h] if options[:h]
         deletable = options.delete(:deletable)
         link_options  = options.delete(:link_options) || {}
-        show_image = @object[method].is_a?(String) && !@object[method].empty? && @object.persisted?
+        unless link_options.delete(:confirm) == false
+          link_options.deep_merge!(:data => {:confirm => I18n.translate('mogile_image_store.notices.confirm')})
+        end
+        show_image = @object[method].is_a?(String) && @object[method].present?
       end
 
       output = ''.html_safe
@@ -60,14 +63,14 @@ module MogileImageStore # :nodoc:
         # 画像を表示
         output += thumbnail(@object[method], image_options)
         # 画像削除用のリンク表示
-        if deletable === nil || deletable
+        if (deletable.nil? || deletable) && @object.id
           output += @template.link_to(
             (I18n.translate!('mogile_image_store.form_helper.delete') rescue 'delete'),
             { :controller => @template.controller.controller_name,
               :action => 'image_delete',
               :id => @object,
               :column => method, },
-              { :confirm => I18n.translate('mogile_image_store.notices.confirm') }.merge(link_options),
+              link_options
           )
         end
         output += tag('br')
@@ -93,6 +96,9 @@ module MogileImageStore # :nodoc:
       else
         deletable = options.delete(:deletable)
         link_options  = options.delete(:link_options) || {}
+        unless link_options.delete(:confirm) == false
+          link_options.deep_merge!(:data => {:confirm => I18n.translate('mogile_image_store.notices.confirm')})
+        end
         exists = @object[method].is_a?(String) && !@object[method].empty? && @object.persisted?
       end
 
@@ -110,7 +116,7 @@ module MogileImageStore # :nodoc:
               :action => 'image_delete',
               :id => @object,
               :column => method, },
-              { :confirm => I18n.translate('mogile_image_store.notices.confirm') }.merge(link_options),
+              link_options
           )
         end
         output += tag('br')

@@ -1,17 +1,17 @@
 source 'https://rubygems.org'
 
-if ENV['RAILS_VER'] == '3.0'
-  gem "rails", "~> 3.0.0"
-  gem "mysql2", "~> 0.2.0"
-else
+if ENV['RAILS_VER'] == '3.2'
   gem "rails", "~> 3.2"
-  gem "mysql2"
-end
-
-if ENV['PARANOID'] == 'original'
-  gem 'acts_as_paranoid'
+  gem 'rails3_acts_as_paranoid', github: 'mshibuya/rails3_acts_as_paranoid'
+elsif ENV['RAILS_VER'] == '4.1'
+  gem "rails", "~> 4.1.0"
+  gem 'acts_as_paranoid', '>= 0.5.0.beta1'
 else
-  gem 'rails3_acts_as_paranoid', :git => 'git://github.com/mshibuya/rails3_acts_as_paranoid.git'
+  gem "rails", "~> 4.2.0"
+  gem 'acts_as_paranoid', github: 'ActsAsParanoid/acts_as_paranoid'
 end
+gem "mysql2"
+
+gem 'byebug', :platforms => :mri_21
 
 gemspec

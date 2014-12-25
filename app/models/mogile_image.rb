@@ -7,7 +7,7 @@ class MogileImage < ActiveRecord::Base
 
   class << self
     def save_image(attachment, options = {})
-      find_or_initialize_by_name(attachment.name).
+      (where(:name => attachment.name).first || new(:name => attachment.name)).
         send(options.delete(:temporary) ? :store_temporarily : :store, attachment)
     end
     ##
