@@ -3,7 +3,7 @@ require 'mogilefs'
 
 describe MogileImageStore do
   it "should be valid" do
-    MogileImageStore.should be_a(Module)
+    expect(MogileImageStore).to be_a(Module)
   end
 
   context "configuration" do
@@ -17,24 +17,24 @@ describe MogileImageStore do
     it 'should append slash to mount_at only when not ended with slash' do
       MogileImageStore::Engine.config.mogile_fs['test']['mount_at'] = '/foo/'
       MogileImageStore.configure
-      MogileImageStore.backend[:mount_at].should == '/foo/'
+      expect(MogileImageStore.backend[:mount_at]).to eq('/foo/')
       MogileImageStore::Engine.config.mogile_fs['test']['mount_at'] = '/foo'
       MogileImageStore.configure
-      MogileImageStore.backend[:mount_at].should == '/foo/'
+      expect(MogileImageStore.backend[:mount_at]).to eq('/foo/')
     end
     it 'should append slash to base_url only when not ended with slash' do
       MogileImageStore::Engine.config.mogile_fs['test']['mount_at'] = '/foo/'
       MogileImageStore::Engine.config.mogile_fs['test']['base_url'] = '/bar/'
       MogileImageStore.configure
-      MogileImageStore.backend[:base_url].should == '/bar/'
+      expect(MogileImageStore.backend[:base_url]).to eq('/bar/')
       MogileImageStore::Engine.config.mogile_fs['test']['base_url'] = '/bar'
       MogileImageStore.configure
-      MogileImageStore.backend[:base_url].should == '/bar/'
+      expect(MogileImageStore.backend[:base_url]).to eq('/bar/')
     end
     it 'should set base_url to default value on empty' do
       MogileImageStore::Engine.config.mogile_fs['test']['base_url'] = nil
       MogileImageStore.configure
-      MogileImageStore.backend[:base_url].should == '/image/'
+      expect(MogileImageStore.backend[:base_url]).to eq('/image/')
     end
   end
 end

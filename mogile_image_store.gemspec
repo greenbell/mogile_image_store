@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "factory_girl", "~> 1.3.2"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rdoc"
-  spec.add_development_dependency "rspec-rails", '~> 2.14.0'
+  spec.add_development_dependency "rspec-rails", "~> 3.0"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "sqlite3-ruby"
   spec.add_development_dependency "equivalent-xml"

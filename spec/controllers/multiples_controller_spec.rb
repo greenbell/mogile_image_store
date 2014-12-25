@@ -2,9 +2,9 @@
 require 'spec_helper'
 require 'net/http'
 
-describe MultiplesController do
+describe MultiplesController, type: :controller do
   it "should use MultiplesController" do
-    controller.should be_an_instance_of(MultiplesController)
+    expect(controller).to be_an_instance_of(MultiplesController)
   end
 
   context "With MogileFS Backend", :mogilefs => true do
@@ -18,32 +18,33 @@ describe MultiplesController do
 
     it "should return status 404 when requested non-existent column" do
       get 'image_delete', :confirm_id => @confirm.id, :id => @multiple.id, :column => 'picture'
-      response.status.should == 404
+      expect(response.status).to eq(404)
     end
 
     it "should be deleted" do
-      @mg.list_keys('').shift.should == ['bcadded5ee18bfa7c99834f307332b02.jpg']
+      expect(@mg.list_keys('').shift).to eq(['bcadded5ee18bfa7c99834f307332b02.jpg'])
       get 'image_delete', :confirm_id => @confirm.id, :id => @multiple.id, :column => 'banner1'
-      response.status.should == 302
-      response.header['Location'].should == "http://test.host/confirms/2/multiples/#{@multiple.id}/edit"
-      MogileImage.count.should == 0
-      @mg.list_keys('').should be_nil
-      @multiple.reload[:banner1].should be_nil
+      expect(response.status).to eq(302)
+      expect(response.header['Location']).to eq("http://test.host/confirms/2/multiples/#{@multiple.id}/edit")
+      expect(MogileImage.count).to eq(0)
+      expect(@mg.list_keys('')).to be_nil
+      expect(@multiple.reload[:banner1]).to be_nil
     end
 
     it "should show alert on failure" do
       @multiple.banner1 = nil
       @multiple.save!
       get 'image_delete', :confirm_id => @confirm.id, :id => @multiple.id, :column => 'banner1'
-      response.status.should == 302
-      response.header['Location'].should == "http://test.host/confirms/2/multiples/#{@multiple.id}/edit"
-      flash.now[:alert].should == 'Failed to delete image.'
+      expect(response.status).to eq(302)
+      expect(response.header['Location']).to eq("http://test.host/confirms/2/multiples/#{@multiple.id}/edit")
+      expect(flash.now[:alert]).to eq('Failed to delete image.')
     end
 
     it "image-delete url should be correctly set with nested resource" do
       get 'edit', :confirm_id => @multiple.confirm_id, :id => @multiple.id
-      controller.url_for(:action => 'image_delete', :column => 'banner2').should ==
+      expect(controller.url_for(:action => 'image_delete', :column => 'banner2')).to eq(
         'http://test.host/confirms/2/multiples/1/image_delete?column=banner2'
+      )
     end
   end
 end

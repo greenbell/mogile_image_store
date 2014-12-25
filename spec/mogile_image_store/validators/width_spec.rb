@@ -11,7 +11,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 513 image" do
@@ -19,7 +19,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
       end
 
@@ -30,7 +30,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
 
         it "should accept 513 image" do
@@ -38,7 +38,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
       end
 
@@ -49,7 +49,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
 
         it "should accept 513 image" do
@@ -57,7 +57,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 725 image" do
@@ -65,7 +65,7 @@ describe MogileImageStore do
             :filename => 'sample.jpg',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
       end
 
@@ -76,7 +76,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 513 image" do
@@ -84,7 +84,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
       end
 
@@ -95,8 +95,8 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
-          @image.errors[:image].shift.should be == '\'s width must be smaller than 500 pixels.'
+          expect(@image.valid?).to be_falsey
+          expect(@image.errors[:image].shift).to eq('\'s width must be smaller than 500 pixels.')
         end
       end
 
@@ -115,8 +115,8 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
-          @image.errors[:image].shift.should be == 'の幅は500pixel以下でなければなりません。'
+          expect(@image.valid?).to be_falsey
+          expect(@image.errors[:image].shift).to eq('の幅は500pixel以下でなければなりません。')
         end
       end
 
@@ -127,8 +127,8 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
-          @image.errors[:image].shift.should be == 'custom'
+          expect(@image.valid?).to be_falsey
+          expect(@image.errors[:image].shift).to eq('custom')
         end
       end
 
@@ -139,7 +139,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
 
         it "should accept 513 image" do
@@ -147,7 +147,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
       end
     end

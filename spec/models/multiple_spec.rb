@@ -9,24 +9,24 @@ describe Multiple, :mogilefs => true do
     it "should return hash value when saved" do
       @multiple.set_image_file :banner1, "#{File.dirname(__FILE__)}/../sample.jpg"
       @multiple.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.png"
-      lambda{ @multiple.save! }.should_not raise_error
-      @multiple.banner1.should == 'bcadded5ee18bfa7c99834f307332b02.jpg'
-      @multiple.banner2.should == '60de57a8f5cd0a10b296b1f553cb41a9.png'
-      @mg.list_keys('').shift.sort.should == ['60de57a8f5cd0a10b296b1f553cb41a9.png', 'bcadded5ee18bfa7c99834f307332b02.jpg']
+      expect{ @multiple.save! }.not_to raise_error
+      expect(@multiple.banner1).to eq('bcadded5ee18bfa7c99834f307332b02.jpg')
+      expect(@multiple.banner2).to eq('60de57a8f5cd0a10b296b1f553cb41a9.png')
+      expect(@mg.list_keys('').shift.sort).to eq(['60de57a8f5cd0a10b296b1f553cb41a9.png', 'bcadded5ee18bfa7c99834f307332b02.jpg'])
     end
 
     it "should increase refcount when saving the same image" do
       @multiple.set_image_file :banner1, "#{File.dirname(__FILE__)}/../sample.jpg"
       @multiple.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.png"
       @multiple.save!
-      MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount.should == 1
+      expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount).to eq(1)
       @multiple = Factory.build(:multiple)
       @multiple.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.jpg"
-      lambda{ @multiple.save }.should_not raise_error
-      @multiple.banner2.should == 'bcadded5ee18bfa7c99834f307332b02.jpg'
-      @mg.list_keys('').shift.sort.should == ['60de57a8f5cd0a10b296b1f553cb41a9.png', 'bcadded5ee18bfa7c99834f307332b02.jpg']
-      MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount.should == 2
-      MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9').refcount.should == 1
+      expect{ @multiple.save }.not_to raise_error
+      expect(@multiple.banner2).to eq('bcadded5ee18bfa7c99834f307332b02.jpg')
+      expect(@mg.list_keys('').shift.sort).to eq(['60de57a8f5cd0a10b296b1f553cb41a9.png', 'bcadded5ee18bfa7c99834f307332b02.jpg'])
+      expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount).to eq(2)
+      expect(MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9').refcount).to eq(1)
     end
   end
 
@@ -42,18 +42,18 @@ describe Multiple, :mogilefs => true do
     end
 
     it "should decrease refcount when deleting duplicated image" do
-      lambda{ @multiple1.destroy }.should_not raise_error
-      @mg.list_keys('').shift.sort.should == ['bcadded5ee18bfa7c99834f307332b02.jpg',]
-      MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount.should == 1
-      MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9').should be_nil
+      expect{ @multiple1.destroy }.not_to raise_error
+      expect(@mg.list_keys('').shift.sort).to eq(['bcadded5ee18bfa7c99834f307332b02.jpg',])
+      expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount).to eq(1)
+      expect(MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9')).to be_nil
     end
 
     it "should delete image data when deleting image" do
       @multiple1.destroy
-      lambda{ @multiple2.destroy }.should_not raise_error
-      @mg.list_keys('').should be_nil
-      MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').should be_nil
-      MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9').should be_nil
+      expect{ @multiple2.destroy }.not_to raise_error
+      expect(@mg.list_keys('')).to be_nil
+      expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02')).to be_nil
+      expect(MogileImage.find_by_name('60de57a8f5cd0a10b296b1f553cb41a9')).to be_nil
     end
   end
 end

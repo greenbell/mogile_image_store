@@ -45,7 +45,7 @@ RSpec.configure do |config|
 
   require "database_cleaner"
   include MogilefsHelperMethods
-  config.before(:each) do
+  config.before(:each) do |example|
     if example.metadata[:mogilefs]
       mogilefs_prepare
       @mg = MogileFS::MogileFS.new({
@@ -60,7 +60,7 @@ RSpec.configure do |config|
     end
     DatabaseCleaner.start
   end
-  config.after(:each) do
+  config.after(:each) do |example|
     mogilefs_cleanup if example.metadata[:mogilefs]
     DatabaseCleaner.clean
   end

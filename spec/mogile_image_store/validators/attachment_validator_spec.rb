@@ -9,7 +9,7 @@ describe MogileImageStore::Validators::AttachmentValidator do
         :filename => 'sample.txt',
         :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.txt")
       })
-      @asset.valid?.should be_true
+      expect(@asset.valid?).to be_truthy
     end
 
     it "should not accept jpg file" do
@@ -17,7 +17,7 @@ describe MogileImageStore::Validators::AttachmentValidator do
         :filename => 'sample.jpg',
         :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
       })
-      @asset.valid?.should be_false
+      expect(@asset.valid?).to be_falsey
     end
   end
 
@@ -36,8 +36,8 @@ describe MogileImageStore::Validators::AttachmentValidator do
         :filename => 'sample.jpg',
         :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
       })
-      @asset.valid?.should be_false
-      @asset.errors[:asset].shift.should be == 'はtxtファイルでなければなりません。'
+      expect(@asset.valid?).to be_falsey
+      expect(@asset.errors[:asset].shift).to eq('はtxtファイルでなければなりません。')
     end
   end
 end

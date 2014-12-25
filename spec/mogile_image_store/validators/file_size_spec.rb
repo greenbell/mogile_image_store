@@ -11,7 +11,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 30k image" do
@@ -19,7 +19,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
       end
 
@@ -30,7 +30,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
 
         it "should accept 30k image" do
@@ -38,7 +38,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
       end
 
@@ -49,7 +49,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
 
         it "should accept 30k image" do
@@ -57,7 +57,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 97k image" do
@@ -65,7 +65,7 @@ describe MogileImageStore do
             :filename => 'sample.jpg',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
       end
 
@@ -76,7 +76,7 @@ describe MogileImageStore do
             :filename => 'sample.png',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
-          @image.valid?.should be_true
+          expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 30k image" do
@@ -84,7 +84,7 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
+          expect(@image.valid?).to be_falsey
         end
       end
 
@@ -95,8 +95,8 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
-          @image.errors[:image].shift.should == 'must be smaller than 20KB.'
+          expect(@image.valid?).to be_falsey
+          expect(@image.errors[:image].shift).to eq('must be smaller than 20KB.')
         end
       end
 
@@ -115,8 +115,8 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
-          @image.errors[:image].shift.should == 'は20KB以下でなければなりません。'
+          expect(@image.valid?).to be_falsey
+          expect(@image.errors[:image].shift).to eq('は20KB以下でなければなりません。')
         end
       end
 
@@ -127,8 +127,8 @@ describe MogileImageStore do
             :filename => 'sample.gif',
             :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
-          @image.valid?.should be_false
-          @image.errors[:image].shift.should == 'custom'
+          expect(@image.valid?).to be_falsey
+          expect(@image.errors[:image].shift).to eq('custom')
         end
       end
     end
