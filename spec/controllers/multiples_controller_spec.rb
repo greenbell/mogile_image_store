@@ -9,9 +9,9 @@ describe MultiplesController, type: :controller do
 
   context "With MogileFS Backend", :mogilefs => true do
     before do
-      Factory(:confirm)
-      @confirm = Factory(:confirm)
-      @multiple = Factory.build(:multiple, :confirm => @confirm)
+      FactoryGirl.create(:confirm)
+      @confirm = FactoryGirl.create(:confirm)
+      @multiple = FactoryGirl.build(:multiple, :confirm => @confirm)
       @multiple.set_image_file :banner1, "#{File.dirname(__FILE__)}/../sample.jpg"
       @multiple.save
     end

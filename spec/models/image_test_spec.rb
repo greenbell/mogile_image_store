@@ -86,7 +86,7 @@ describe ImageTest do
 
     context "saving" do
       before do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
       end
 
       it "should return hash value when saved" do
@@ -99,7 +99,7 @@ describe ImageTest do
       it "should increase refcount when saving the same image" do
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
         @image_test.save!
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount).to eq(1)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
         expect{ @image_test.save }.not_to raise_error
@@ -111,10 +111,10 @@ describe ImageTest do
 
     context "retrieval" do
       before do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
         @image_test.save!
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.png"
         @image_test.save!
       end
@@ -269,7 +269,7 @@ describe ImageTest do
 
     context "overwriting" do
       before do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.png"
         @image_test.save!
       end
@@ -286,7 +286,7 @@ describe ImageTest do
 
     context "saving without uploading image" do
       before do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
         @image_test.save!
       end
@@ -333,10 +333,10 @@ describe ImageTest do
 
     context "deletion" do
       before do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
         @image_test.save!
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
         @image_test.save!
       end
@@ -372,7 +372,7 @@ describe ImageTest do
 
     context "jpeg exif" do
       it "should clear exif data" do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample_exif.jpg"
         expect{ @image_test.save }.not_to raise_error
         content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
@@ -381,7 +381,7 @@ describe ImageTest do
         expect(imglist.first.get_exif_by_entry()).to eq([])
       end
       it "should keep exif data" do
-        @image_test = Factory.build(:keep_exif)
+        @image_test = FactoryGirl.build(:keep_exif)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample_exif.jpg"
         expect{ @image_test.save }.not_to raise_error
         content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
@@ -393,7 +393,7 @@ describe ImageTest do
 
     context "huge image" do
       it "should be shrinked to fit within limit" do
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
         @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample_huge.gif"
         expect{ @image_test.save }.not_to raise_error
         content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
@@ -407,7 +407,7 @@ describe ImageTest do
     context "filter" do
       before do
         MogileImageStore.options[:image_filter] = lambda{|imglist| imglist.format = 'png' }
-        @image_test = Factory.build(:image_test)
+        @image_test = FactoryGirl.build(:image_test)
       end
 
       after do

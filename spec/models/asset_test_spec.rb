@@ -35,7 +35,7 @@ describe AssetTest, :mogilefs => true do
     it "should increase refcount when saving the same asset" do
       subject.set_image_file :asset, "#{File.dirname(__FILE__)}/../sample.txt"
       subject.save!
-      subject = Factory.build(:asset_test)
+      subject = FactoryGirl.build(:asset_test)
       expect(MogileImage.find_by_name('d2863cc5448b49cfd0ab49dcb0936a89').refcount).to eq(1)
       subject.set_image_file :asset, "#{File.dirname(__FILE__)}/../sample.txt"
       expect{ subject.save }.not_to raise_error
@@ -46,7 +46,7 @@ describe AssetTest, :mogilefs => true do
   end
 
   context "on retrieval" do
-    subject{ Factory.build(:asset_test) }
+    subject{ FactoryGirl.build(:asset_test) }
     before do
       subject.set_image_file :asset, "#{File.dirname(__FILE__)}/../sample.txt"
       subject.save!
@@ -60,7 +60,7 @@ describe AssetTest, :mogilefs => true do
   end
 
   context "on overwriting" do
-    subject{ Factory.build(:asset_test) }
+    subject{ FactoryGirl.build(:asset_test) }
     before do
       subject.set_image_file :asset, "#{File.dirname(__FILE__)}/../sample.txt"
       subject.save!

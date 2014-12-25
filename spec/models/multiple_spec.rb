@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Multiple, :mogilefs => true do
   context "saving" do
     before do
-      @multiple = Factory.build(:multiple)
+      @multiple = FactoryGirl.build(:multiple)
     end
 
     it "should return hash value when saved" do
@@ -20,7 +20,7 @@ describe Multiple, :mogilefs => true do
       @multiple.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.png"
       @multiple.save!
       expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount).to eq(1)
-      @multiple = Factory.build(:multiple)
+      @multiple = FactoryGirl.build(:multiple)
       @multiple.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.jpg"
       expect{ @multiple.save }.not_to raise_error
       expect(@multiple.banner2).to eq('bcadded5ee18bfa7c99834f307332b02.jpg')
@@ -32,11 +32,11 @@ describe Multiple, :mogilefs => true do
 
   context "deletion" do
     before do
-      @multiple1 = Factory.build(:multiple)
+      @multiple1 = FactoryGirl.build(:multiple)
       @multiple1.set_image_file :banner1, "#{File.dirname(__FILE__)}/../sample.jpg"
       @multiple1.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.png"
       @multiple1.save!
-      @multiple2 = Factory.build(:multiple)
+      @multiple2 = FactoryGirl.build(:multiple)
       @multiple2.set_image_file :banner2, "#{File.dirname(__FILE__)}/../sample.jpg"
       @multiple2.save!
     end

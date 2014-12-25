@@ -16,10 +16,10 @@ describe MogileImagesController, type: :controller do
         @mogadm.create_class  MogileImageStore.backend['domain'], MogileImageStore.backend['class'], 2 rescue nil
       end
       @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
-      image_test = Factory.build(:image_test)
+      image_test = FactoryGirl.build(:image_test)
       image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       image_test.save
-      asset_test = Factory.build(:asset_test)
+      asset_test = FactoryGirl.build(:asset_test)
       asset_test.set_image_file :asset, "#{File.dirname(__FILE__)}/../sample.txt"
       asset_test.save
     end

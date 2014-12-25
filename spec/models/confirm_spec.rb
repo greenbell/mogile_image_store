@@ -11,7 +11,7 @@ describe Confirm, :mogilefs => true do
 
   before do
     @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
-    @confirm = Factory.build(:confirm)
+    @confirm = FactoryGirl.build(:confirm)
   end
 
   context "saving" do
@@ -31,7 +31,7 @@ describe Confirm, :mogilefs => true do
     it "should increase refcount when saving the same image" do
       @confirm.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       @confirm.save!
-      @confirm = Factory.build(:confirm)
+      @confirm = FactoryGirl.build(:confirm)
       expect(MogileImage.find_by_name('bcadded5ee18bfa7c99834f307332b02').refcount).to eq(1)
       @confirm.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       expect(@confirm.valid?).to be_truthy
@@ -60,7 +60,7 @@ describe Confirm, :mogilefs => true do
       @confirm.set_image_data :image, File.open("#{File.dirname(__FILE__)}/../sample.png").read
       sleep(1)
       MogileImage.cleanup_temporary_image
-      @confirm = Factory.build(:confirm)
+      @confirm = FactoryGirl.build(:confirm)
       @confirm.set_image_data :image, File.open("#{File.dirname(__FILE__)}/../sample.png").read
       expect(@confirm.valid?).to be_truthy
       expect(@confirm.image).to eq('60de57a8f5cd0a10b296b1f553cb41a9.png')

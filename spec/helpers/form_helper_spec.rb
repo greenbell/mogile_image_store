@@ -4,7 +4,7 @@ require 'spec_helper'
 describe MogileImageStore::FormBuilder, mogilefs: true, type: :helper do
   describe "#image_field" do
     before do
-      @image_test = Factory.build(:image_test)
+      @image_test = FactoryGirl.build(:image_test)
     end
 
     it "should show file field" do
@@ -68,7 +68,7 @@ describe MogileImageStore::FormBuilder, mogilefs: true, type: :helper do
 
     context "confirm" do
       before do
-        @confirm = Factory.build(:confirm)
+        @confirm = FactoryGirl.build(:confirm)
         @confirm.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.png"
         @confirm.valid?
       end
@@ -83,7 +83,7 @@ describe MogileImageStore::FormBuilder, mogilefs: true, type: :helper do
 
   describe "#attachment_field" do
     before do
-      @image_test = Factory.build(:image_test)
+      @image_test = FactoryGirl.build(:image_test)
     end
 
     it "should show file field" do
@@ -107,7 +107,7 @@ describe MogileImageStore::FormBuilder, mogilefs: true, type: :helper do
 
     context "on confirmation" do
       before do
-        @confirm = Factory.build(:confirm)
+        @confirm = FactoryGirl.build(:confirm)
         @confirm.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.png"
         @confirm.valid?
       end

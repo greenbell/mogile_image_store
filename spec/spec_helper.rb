@@ -9,6 +9,8 @@ require 'rspec/expectations'
 require 'equivalent-xml'
 
 require "factory_girl"
+FactoryGirl.definition_file_paths = [File.expand_path("../factories", __FILE__)]
+FactoryGirl.find_definitions
 
 ActionMailer::Base.delivery_method = :test
 ActionMailer::Base.perform_deliveries = true

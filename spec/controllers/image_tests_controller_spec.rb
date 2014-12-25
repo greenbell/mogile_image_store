@@ -9,7 +9,7 @@ describe ImageTestsController, type: :controller do
 
   context "With MogileFS Backend", :mogilefs => true do
     before do
-      @image_test = Factory.build(:image_test)
+      @image_test = FactoryGirl.build(:image_test)
       @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       @image_test.save
     end

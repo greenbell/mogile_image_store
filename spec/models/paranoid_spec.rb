@@ -7,7 +7,7 @@ describe Paranoid, :mogilefs => true do
 
   context "saving" do
     before do
-      @paranoid = Factory.build(:paranoid)
+      @paranoid = FactoryGirl.build(:paranoid)
     end
 
     it "should return hash value when saved" do
@@ -20,7 +20,7 @@ describe Paranoid, :mogilefs => true do
     it "should accept another image using set_image_data" do
       @paranoid.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       @paranoid.save!
-      @paranoid = Factory.build(:paranoid)
+      @paranoid = FactoryGirl.build(:paranoid)
       @paranoid.set_image_data :image, File.open("#{File.dirname(__FILE__)}/../sample.png").read
       expect{ @paranoid.save }.not_to raise_error
       expect(@paranoid.image).to eq('60de57a8f5cd0a10b296b1f553cb41a9.png')
@@ -32,7 +32,7 @@ describe Paranoid, :mogilefs => true do
 
   context "deletion" do
     before do
-      @paranoid = Factory.build(:paranoid)
+      @paranoid = FactoryGirl.build(:paranoid)
       @paranoid.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       @paranoid.save!
     end
