@@ -1,10 +1,10 @@
 # coding: utf-8
 
 class MogileImagesController < ActionController::Base
-  protect_from_forgery :except => [:flush]
+  protect_from_forgery except: [:flush]
 
-  rescue_from MogileImageStore::ImageNotFound, :with => :error_404
-  rescue_from MogileImageStore::SizeNotAllowed, :with => :error_404
+  rescue_from MogileImageStore::ImageNotFound, with: :error_404
+  rescue_from MogileImageStore::SizeNotAllowed, with: :error_404
 
   ##
   # 画像の送信、もしくはx-reproxy-cache-forヘッダ出力を行う
@@ -17,11 +17,11 @@ class MogileImagesController < ActionController::Base
       if MogileImageStore.backend['cache']
         response.header['X-REPROXY-CACHE-FOR'] = "#{MogileImageStore.backend['cache']}; Content-Type"
       end
-      render :nothing => true
+      render nothing: true
     else
       type, data = MogileImage.fetch_data(params[:name], params[:format], params[:size])
       response.header['Content-Type'] = type.to_s
-      render :layout => false, :text => data
+      render layout: false, text: data
     end
   end
 
@@ -30,7 +30,7 @@ class MogileImagesController < ActionController::Base
   #
   def flush
     unless MogileImageStore.backend['reproxy'] && MogileImageStore.backend['cache']
-      render :nothing => true, :status => "206 No Content"
+      render nothing: true, status: "206 No Content"
       return
     end
 
@@ -38,13 +38,13 @@ class MogileImagesController < ActionController::Base
     # authentication
     if request.env[MogileImageStore::AUTH_HEADER_ENV] == MogileImageStore.auth_key(body)
       response.header['X-REPROXY-CACHE-CLEAR'] = body
-      render :nothing => true, :status => "200 OK"
+      render nothing: true, status: "200 OK"
     else
-      render :nothing => true, :status => "401 Unauthorized"
+      render nothing: true, status: "401 Unauthorized"
     end
   end
 
   def error_404
-    render :nothing => true, :status => "404 Not Found"
+    render nothing: true, status: "404 Not Found"
   end
 end

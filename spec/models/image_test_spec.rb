@@ -18,32 +18,32 @@ describe ImageTest do
     before{ @image_test = ImageTest.new }
     it "should accept jpeg image" do
       @image_test.image = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.jpg',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.jpg")
+        filename: 'sample.jpg',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../sample.jpg")
       })
       expect(@image_test.valid?).to be_truthy
     end
 
     it "should accept gif image" do
       @image_test.image = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.gif',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.gif")
+        filename: 'sample.gif',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../sample.gif")
       })
       expect(@image_test.valid?).to be_truthy
     end
 
     it "should accept png image" do
       @image_test.image = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.png',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.png")
+        filename: 'sample.png',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../sample.png")
       })
       expect(@image_test.valid?).to be_truthy
     end
 
      it "should not accept bmp image" do
       @image_test.image = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.bmp',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.bmp")
+        filename: 'sample.bmp',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../sample.bmp")
       })
       expect(@image_test.valid?).to be_falsey
       expect(@image_test.errors[:image].shift).to eq("must be JPEG, GIF or PNG file.")
@@ -51,8 +51,8 @@ describe ImageTest do
 
     it "should not accept text file" do
       @image_test.image = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'spec_helper.rb',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../spec_helper.rb")
+        filename: 'spec_helper.rb',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../spec_helper.rb")
       })
       expect(@image_test.valid?).to be_falsey
       expect(@image_test.errors[:image].shift).to eq("must be image file.")
@@ -71,17 +71,17 @@ describe ImageTest do
       end
       it "should not raise error" do
         @image_test.image = ActionDispatch::Http::UploadedFile.new({
-          :filename => 'sample.jpg',
-          :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.jpg")
+          filename: 'sample.jpg',
+          tempfile: File.open("#{File.dirname(__FILE__)}/../sample.jpg")
         })
         expect{ @image_test.valid? }.not_to raise_error
       end
     end
   end
 
-  context "MogileFS backend", :mogilefs => true do
+  context "MogileFS backend", mogilefs: true do
     before do
-      @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
+      @mg = MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] })
     end
 
     context "saving" do

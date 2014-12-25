@@ -8,16 +8,16 @@ describe MogileImageStore do
         before{ @image = ImageHeightMax500.new }
         it "should accept 445 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.png',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
+            filename: 'sample.png',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
           expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
         end
@@ -27,16 +27,16 @@ describe MogileImageStore do
         before{ @image = ImageHeightMin500.new }
         it "should not accept 445 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.png',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
+            filename: 'sample.png',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
           expect(@image.valid?).to be_falsey
         end
 
         it "should accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_truthy
         end
@@ -46,24 +46,24 @@ describe MogileImageStore do
         before{ @image = ImageHeightMin430Max500.new }
         it "should not accept 420 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.gif',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
+            filename: 'sample.gif',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
           expect(@image.valid?).to be_falsey
         end
 
         it "should accept 445 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.png',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
+            filename: 'sample.png',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
           expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
         end
@@ -73,16 +73,16 @@ describe MogileImageStore do
         before{ @image = ImageHeightMax500OldForm.new }
         it "should accept 445 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.png',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.png")
+            filename: 'sample.png',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.png")
           })
           expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
         end
@@ -92,8 +92,8 @@ describe MogileImageStore do
         before{ @image = ImageHeightMax500.new }
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
           expect(@image.errors[:image].shift).to eq('\'s height must be smaller than 500 pixels.')
@@ -111,8 +111,8 @@ describe MogileImageStore do
 
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
           expect(@image.errors[:image].shift).to eq('の高さは500pixel以下でなければなりません。')
@@ -123,8 +123,8 @@ describe MogileImageStore do
         before{ @image = ImageHeightMax500CustomMsg.new }
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
           expect(@image.errors[:image].shift).to eq('custom')
@@ -135,16 +135,16 @@ describe MogileImageStore do
         before{ @image = ImageHeight420.new }
         it "should accept 420 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.png',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.gif")
+            filename: 'sample.png',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.gif")
           })
           expect(@image.valid?).to be_truthy
         end
 
         it "should not accept 544 image" do
           @image.image = ActionDispatch::Http::UploadedFile.new({
-            :filename => 'sample.jpg',
-            :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+            filename: 'sample.jpg',
+            tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
           })
           expect(@image.valid?).to be_falsey
         end

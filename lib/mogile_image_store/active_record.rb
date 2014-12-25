@@ -79,14 +79,14 @@ module MogileImageStore
     module Shared
       def set_image_file(column, path)
         self[column] = ActionDispatch::Http::UploadedFile.new({
-          :filename => File.basename(path),
-          :tempfile => File.open(path)
+          filename: File.basename(path),
+          tempfile: File.open(path)
         })
       end
 
       def set_image_data(column, data)
         self[column] = ActionDispatch::Http::UploadedFile.new({
-          :tempfile => StringIO.new(data)
+          tempfile: StringIO.new(data)
         })
       end
 
@@ -112,7 +112,7 @@ module MogileImageStore
           when MogileImageStore::Attachment
             if attachment.size > MogileImageStore.options[:maxsize]
               errors[column] <<
-                I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => MogileImageStore.options[:maxsize]/1024)
+                I18n.translate('mogile_image_store.errors.messages.size_smaller', size: MogileImageStore.options[:maxsize]/1024)
             end
 
             begin
@@ -165,7 +165,7 @@ module MogileImageStore
         if errors.empty?
           each_attachment do |column, attachment|
             next unless attachment.is_a? MogileImageStore::Attachment
-            self[column] = MogileImage.save_image(attachment, :temporary => true)
+            self[column] = MogileImage.save_image(attachment, temporary: true)
           end
         end
       end

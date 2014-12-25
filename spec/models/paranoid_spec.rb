@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Paranoid, :mogilefs => true do
+describe Paranoid, mogilefs: true do
   before do
-    @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
+    @mg = MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] })
   end
 
   context "saving" do

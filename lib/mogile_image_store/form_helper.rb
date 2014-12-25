@@ -53,7 +53,7 @@ module MogileImageStore # :nodoc:
         deletable = options.delete(:deletable)
         link_options  = options.delete(:link_options) || {}
         unless link_options.delete(:confirm) == false
-          link_options.deep_merge!(:data => {:confirm => I18n.translate('mogile_image_store.notices.confirm')})
+          link_options.deep_merge!(data: {confirm: I18n.translate('mogile_image_store.notices.confirm')})
         end
         show_image = @object[method].is_a?(String) && @object[method].present?
       end
@@ -66,10 +66,10 @@ module MogileImageStore # :nodoc:
         if (deletable.nil? || deletable) && @object.id
           output += @template.link_to(
             (I18n.translate!('mogile_image_store.form_helper.delete') rescue 'delete'),
-            { :controller => @template.controller.controller_name,
-              :action => 'image_delete',
-              :id => @object,
-              :column => method, },
+            { controller: @template.controller.controller_name,
+              action: 'image_delete',
+              id: @object,
+              column: method, },
               link_options
           )
         end
@@ -97,7 +97,7 @@ module MogileImageStore # :nodoc:
         deletable = options.delete(:deletable)
         link_options  = options.delete(:link_options) || {}
         unless link_options.delete(:confirm) == false
-          link_options.deep_merge!(:data => {:confirm => I18n.translate('mogile_image_store.notices.confirm')})
+          link_options.deep_merge!(data: {confirm: I18n.translate('mogile_image_store.notices.confirm')})
         end
         exists = @object[method].is_a?(String) && !@object[method].empty? && @object.persisted?
       end
@@ -106,16 +106,16 @@ module MogileImageStore # :nodoc:
       if exists
         # show link to the content
         output += @template.link_to((I18n.translate!('mogile_image_store.form_helper.link') rescue '[link]'),
-                                    attachment_url(@object[method]), :target => '_blank')
+                                    attachment_url(@object[method]), target: '_blank')
         # show delete link
         if deletable === nil || deletable
           output += " "
           output += @template.link_to(
             (I18n.translate!('mogile_image_store.form_helper.delete') rescue 'delete'),
-            { :controller => @template.controller.controller_name,
-              :action => 'image_delete',
-              :id => @object,
-              :column => method, },
+            { controller: @template.controller.controller_name,
+              action: 'image_delete',
+              id: @object,
+              column: method, },
               link_options
           )
         end

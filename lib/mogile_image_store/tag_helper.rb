@@ -51,12 +51,12 @@ module MogileImageStore # :nodoc:
       options = options.symbolize_keys
       is_link = options.key?(:link) ? options.delete(:link) : true
       thumb_tag = stored_image(key,
-        { :w => MogileImageStore.options[:field_w],
-          :h => MogileImageStore.options[:field_h], }.merge(options)
+        { w: MogileImageStore.options[:field_w],
+          h: MogileImageStore.options[:field_h], }.merge(options)
       )
       if is_link && key && key.respond_to?(:empty?) && !key.empty?
         %w[w h].each{|i| options[i.to_sym] = 0}
-        thumb_tag = link_to(thumb_tag, image_url(key, options), {:target => :_blank})
+        thumb_tag = link_to(thumb_tag, image_url(key, options), {target: :_blank})
       end
       thumb_tag
     end

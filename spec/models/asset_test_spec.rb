@@ -1,22 +1,22 @@
 require 'spec_helper'
 
-describe AssetTest, :mogilefs => true do
-  let(:mg){ MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] }) }
+describe AssetTest, mogilefs: true do
+  let(:mg){ MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] }) }
 
   describe "default validation" do
     subject{ AssetTest.new }
     it "should accept jpeg image" do
       subject.asset = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.jpg',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.jpg")
+        filename: 'sample.jpg',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../sample.jpg")
       })
       expect(subject).to be_valid
     end
 
     it "should accept text file" do
       subject.asset = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.txt',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../sample.txt")
+        filename: 'sample.txt',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../sample.txt")
       })
       expect(subject).to be_valid
     end

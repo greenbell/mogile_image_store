@@ -7,7 +7,7 @@ class ImageTestsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.xml  { render :xml => @image_tests }
+      format.xml  { render xml: @image_tests }
     end
   end
 
@@ -18,7 +18,7 @@ class ImageTestsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.xml  { render :xml => @image_test }
+      format.xml  { render xml: @image_test }
     end
   end
 
@@ -29,7 +29,7 @@ class ImageTestsController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      format.xml  { render :xml => @image_test }
+      format.xml  { render xml: @image_test }
     end
   end
 
@@ -45,11 +45,11 @@ class ImageTestsController < ApplicationController
 
     respond_to do |format|
       if @image_test.save
-        format.html { redirect_to(@image_test, :notice => 'Image test was successfully created.') }
-        format.xml  { render :xml => @image_test, :status => :created, :location => @image_test }
+        format.html { redirect_to(@image_test, notice: 'Image test was successfully created.') }
+        format.xml  { render xml: @image_test, status: :created, location: @image_test }
       else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @image_test.errors, :status => :unprocessable_entity }
+        format.html { render action: "new" }
+        format.xml  { render xml: @image_test.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -61,11 +61,11 @@ class ImageTestsController < ApplicationController
 
     respond_to do |format|
       if @image_test.update_attributes(params[:image_test])
-        format.html { redirect_to(@image_test, :notice => 'Image test was successfully updated.') }
+        format.html { redirect_to(@image_test, notice: 'Image test was successfully updated.') }
         format.xml  { head :ok }
       else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @image_test.errors, :status => :unprocessable_entity }
+        format.html { render action: "edit" }
+        format.xml  { render xml: @image_test.errors, status: :unprocessable_entity }
       end
     end
   end

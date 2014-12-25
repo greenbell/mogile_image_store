@@ -13,10 +13,10 @@ module MogileImageStore
     end
 
     def attributes
-      {:size       => size,
-       :image_type => extension,
-       :width      => width,
-       :height     => height}
+      {size: size,
+       image_type: extension,
+       width: width,
+       height: height}
     end
 
     def extension_for(filename)

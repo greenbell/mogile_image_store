@@ -10,9 +10,9 @@ module MogileImageStore
     #   validates :image, :image_attribute => { :type => [:jpg, :png], :type_message => 'jpeg or png' }
     #   validates :image, :image_attribute => { :type => :jpg, :maxsize = 500.kilobytes, :minwidth => 200, :minheight => 200 }
     #   validates :image, :image_attribute => { :type => :jpg, :width => 500, :height => 420 }
-    #   
+    #
     #   validates_image_attribute_of :image, :type => :jpg, :width => 500, :height => 420
-    # 
+    #
     class ImageAttributeValidator < ActiveModel::EachValidator
       def validate_each(record, attribute, value)
         return unless value.is_a? MogileImageStore::Attachment
@@ -21,7 +21,7 @@ module MogileImageStore
           unless allowed.include?(value.extension)
             record.errors[attribute] << (
               options[:type_message] ||
-              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', :type => allowed.map{|t| MogileImageStore::TO_FORMAT[t]}.join(','))
+              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', type: allowed.map{|t| MogileImageStore::TO_FORMAT[t]}.join(','))
             )
           end
         end
@@ -29,7 +29,7 @@ module MogileImageStore
           if value.size > options[:maxsize]
             record.errors[attribute] << (
               options[:size_message] ||
-              I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => options[:maxsize]/1024)
+              I18n.translate('mogile_image_store.errors.messages.size_smaller', size: options[:maxsize]/1024)
             )
           end
         end
@@ -37,7 +37,7 @@ module MogileImageStore
           if value.size < options[:minsize]
             record.errors[attribute] << (
               options[:size_message] ||
-              I18n.translate('mogile_image_store.errors.messages.size_larger', :size => options[:minsize]/1024)
+              I18n.translate('mogile_image_store.errors.messages.size_larger', size: options[:minsize]/1024)
             )
           end
         end
@@ -45,7 +45,7 @@ module MogileImageStore
           if value.width > options[:maxwidth]
             record.errors[attribute] << (
               options[:width_message] ||
-              I18n.translate('mogile_image_store.errors.messages.width_smaller', :width => options[:maxwidth])
+              I18n.translate('mogile_image_store.errors.messages.width_smaller', width: options[:maxwidth])
             )
           end
         end
@@ -53,7 +53,7 @@ module MogileImageStore
           if value.width < options[:minwidth]
             record.errors[attribute] << (
               options[:width_message] ||
-              I18n.translate('mogile_image_store.errors.messages.width_larger', :width => options[:minwidth])
+              I18n.translate('mogile_image_store.errors.messages.width_larger', width: options[:minwidth])
             )
           end
         end
@@ -61,7 +61,7 @@ module MogileImageStore
           if value.width != options[:width]
             record.errors[attribute] << (
               options[:width_message] ||
-              I18n.translate('mogile_image_store.errors.messages.width', :width => options[:width])
+              I18n.translate('mogile_image_store.errors.messages.width', width: options[:width])
             )
           end
         end
@@ -69,7 +69,7 @@ module MogileImageStore
           if value.height > options[:maxheight]
             record.errors[attribute] << (
               options[:height_message] ||
-              I18n.translate('mogile_image_store.errors.messages.height_smaller', :height => options[:maxheight])
+              I18n.translate('mogile_image_store.errors.messages.height_smaller', height: options[:maxheight])
             )
           end
         end
@@ -77,7 +77,7 @@ module MogileImageStore
           if value.height < options[:minheight]
             record.errors[attribute] << (
               options[:height_message] ||
-              I18n.translate('mogile_image_store.errors.messages.height_larger', :height => options[:minheight])
+              I18n.translate('mogile_image_store.errors.messages.height_larger', height: options[:minheight])
             )
           end
         end
@@ -85,7 +85,7 @@ module MogileImageStore
           if value.height != options[:height]
             record.errors[attribute] << (
               options[:height_message] ||
-              I18n.translate('mogile_image_store.errors.messages.height', :height => options[:height])
+              I18n.translate('mogile_image_store.errors.messages.height', height: options[:height])
             )
           end
         end
@@ -105,7 +105,7 @@ module MogileImageStore
           unless allowed.include?(value.extension)
             record.errors[attribute] << (
               options[:type_message] ||
-              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', :type => allowed.join(','))
+              I18n.translate('mogile_image_store.errors.messages.must_be_image_type', type: allowed.join(','))
             )
           end
         end

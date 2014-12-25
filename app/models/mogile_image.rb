@@ -7,7 +7,7 @@ class MogileImage < ActiveRecord::Base
 
   class << self
     def save_image(attachment, options = {})
-      (where(:name => attachment.name).first || new(:name => attachment.name)).
+      (where(name: attachment.name).first || new(name: attachment.name)).
         send(options.delete(:temporary) ? :store_temporarily : :store, attachment)
     end
     ##
@@ -89,14 +89,14 @@ class MogileImage < ActiveRecord::Base
     def key_exist?(key)
       key = Array.wrap(key).uniq
       names = key.map{|k| k.split('.').first }
-      key.count == where(:name => names).count
+      key.count == where(name: names).count
     end
 
     def mogilefs_connection
       @@mogilefs ||= MogileFS::MogileFS.new({
-        :domain => MogileImageStore.backend['domain'],
-        :hosts  => MogileImageStore.backend['hosts'],
-        :timeout => MogileImageStore.backend['timeout'] || 3
+        domain: MogileImageStore.backend['domain'],
+        hosts: MogileImageStore.backend['hosts'],
+        timeout: MogileImageStore.backend['timeout'] || 3
       })
     end
 

@@ -7,7 +7,7 @@ class ConfirmsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.xml  { render :xml => @confirms }
+      format.xml  { render xml: @confirms }
     end
   end
 
@@ -18,7 +18,7 @@ class ConfirmsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.xml  { render :xml => @confirm }
+      format.xml  { render xml: @confirm }
     end
   end
 
@@ -29,7 +29,7 @@ class ConfirmsController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      format.xml  { render :xml => @confirm }
+      format.xml  { render xml: @confirm }
     end
   end
 
@@ -49,7 +49,7 @@ class ConfirmsController < ApplicationController
       @confirm.attributes = params[:confirm]
     end
 
-    render :action => (@confirm.new_record? ? :new : :edit) unless @confirm.valid?
+    render action: (@confirm.new_record? ? :new : :edit) unless @confirm.valid?
   end
 
 
@@ -60,11 +60,11 @@ class ConfirmsController < ApplicationController
 
     respond_to do |format|
       if @confirm.save
-        format.html { redirect_to(@confirm, :notice => 'Confirm was successfully created.') }
-        format.xml  { render :xml => @confirm, :status => :created, :location => @confirm }
+        format.html { redirect_to(@confirm, notice: 'Confirm was successfully created.') }
+        format.xml  { render xml: @confirm, status: :created, location: @confirm }
       else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @confirm.errors, :status => :unprocessable_entity }
+        format.html { render action: "new" }
+        format.xml  { render xml: @confirm.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -76,11 +76,11 @@ class ConfirmsController < ApplicationController
 
     respond_to do |format|
       if @confirm.update_attributes(params[:confirm])
-        format.html { redirect_to(@confirm, :notice => 'Confirm was successfully updated.') }
+        format.html { redirect_to(@confirm, notice: 'Confirm was successfully updated.') }
         format.xml  { head :ok }
       else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @confirm.errors, :status => :unprocessable_entity }
+        format.html { render action: "edit" }
+        format.xml  { render xml: @confirm.errors, status: :unprocessable_entity }
       end
     end
   end

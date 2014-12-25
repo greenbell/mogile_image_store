@@ -6,16 +6,16 @@ describe MogileImageStore::Validators::AttachmentValidator do
     before{ @asset = AttachmentTypeTxt.new }
     it "should accept txt file" do
       @asset.asset = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.txt',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.txt")
+        filename: 'sample.txt',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.txt")
       })
       expect(@asset.valid?).to be_truthy
     end
 
     it "should not accept jpg file" do
       @asset.asset = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.jpg',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+        filename: 'sample.jpg',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
       })
       expect(@asset.valid?).to be_falsey
     end
@@ -33,8 +33,8 @@ describe MogileImageStore::Validators::AttachmentValidator do
 
     it "should not accept gif file" do
       @asset.asset = ActionDispatch::Http::UploadedFile.new({
-        :filename => 'sample.jpg',
-        :tempfile => File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
+        filename: 'sample.jpg',
+        tempfile: File.open("#{File.dirname(__FILE__)}/../../sample.jpg")
       })
       expect(@asset.valid?).to be_falsey
       expect(@asset.errors[:asset].shift).to eq('はtxtファイルでなければなりません。')

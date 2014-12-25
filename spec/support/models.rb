@@ -11,172 +11,172 @@ end
 class ImageJpeg < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :type => :jpg }
+  validates :image, image_attribute: { type: :jpg }
 end
 
 class ImageGif < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :type => :gif }
+  validates :image, image_attribute: { type: :gif }
 end
 
 class ImagePng < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :type => :png }
+  validates :image, image_attribute: { type: :png }
 end
 
 class ImageJpegPng < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :type => [:jpg, :png] }
+  validates :image, image_attribute: { type: [:jpg, :png] }
 end
 
 class ImageJpegOldForm < Tableless
   column :image, :string
   has_images
-  validates_image_attribute_of :image, :type => :jpg
+  validates_image_attribute_of :image, type: :jpg
 end
 
 class ImageJpegCustomMsg < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :type => :jpg, :type_message => "custom" }
+  validates :image, image_attribute: { type: :jpg, type_message: "custom" }
 end
 
 class ImageMax20 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :maxsize => 20.kilobytes }
+  validates :image, image_attribute: { maxsize: 20.kilobytes }
 end
 
 class ImageMin20 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :minsize => 20.kilobytes }
+  validates :image, image_attribute: { minsize: 20.kilobytes }
 end
 
 class ImageMin20Max40 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :minsize => 20.kilobytes, :maxsize => 40.kilobytes }
+  validates :image, image_attribute: { minsize: 20.kilobytes, maxsize: 40.kilobytes }
 end
 
 class ImageMax20OldForm < Tableless
   column :image, :string
   has_images
-  validates_image_attribute_of :image, :maxsize => 20.kilobytes
+  validates_image_attribute_of :image, maxsize: 20.kilobytes
 end
 
 class ImageMax20CustomMsg < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :maxsize => 20.kilobytes, :size_message => 'custom' }
+  validates :image, image_attribute: { maxsize: 20.kilobytes, size_message: 'custom' }
 end
 
 class ImageWidthMax500 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :maxwidth => 500 }
+  validates :image, image_attribute: { maxwidth: 500 }
 end
 
 class ImageWidthMin500 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :minwidth => 500 }
+  validates :image, image_attribute: { minwidth: 500 }
 end
 
 class ImageWidthMin500Max600 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :minwidth => 500, :maxwidth => 600 }
+  validates :image, image_attribute: { minwidth: 500, maxwidth: 600 }
 end
 
 class ImageWidthMax500OldForm < Tableless
   column :image, :string
   has_images
-  validates_image_attribute_of :image, :maxwidth => 500
+  validates_image_attribute_of :image, maxwidth: 500
 end
 
 class ImageWidthMax500CustomMsg < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :maxwidth => 500, :width_message => 'custom' }
+  validates :image, image_attribute: { maxwidth: 500, width_message: 'custom' }
 end
 
 class ImageWidth513 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :width => 513 }
+  validates :image, image_attribute: { width: 513 }
 end
 
 class ImageHeightMax500 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :maxheight => 500 }
+  validates :image, image_attribute: { maxheight: 500 }
 end
 
 class ImageHeightMin500 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :minheight => 500 }
+  validates :image, image_attribute: { minheight: 500 }
 end
 
 class ImageHeightMin430Max500 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :minheight => 430, :maxheight => 500 }
+  validates :image, image_attribute: { minheight: 430, maxheight: 500 }
 end
 
 class ImageHeightMax500OldForm < Tableless
   column :image, :string
   has_images
-  validates_image_attribute_of :image, :maxheight => 500
+  validates_image_attribute_of :image, maxheight: 500
 end
 
 class ImageHeightMax500CustomMsg < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :maxheight => 500, :height_message => 'custom' }
+  validates :image, image_attribute: { maxheight: 500, height_message: 'custom' }
 end
 
 class ImageHeight420 < Tableless
   column :image, :string
   has_images
-  validates :image, :image_attribute => { :height => 420 }
+  validates :image, image_attribute: { height: 420 }
 end
 
 class ImageTestWithImageType < ActiveRecord::Base
   self.table_name = 'image_tests'
   has_images
-  validates :image, :image_attribute => { :type => [:jpg, :png] }
+  validates :image, image_attribute: { type: [:jpg, :png] }
 end
 
 class ImageTestWithFileSize < ActiveRecord::Base
   self.table_name = 'image_tests'
   has_images
-  validates :image, :image_attribute => { :maxsize => 20.kilobytes }
+  validates :image, image_attribute: { maxsize: 20.kilobytes }
 end
 
 class ImageTestWithWidth < ActiveRecord::Base
   self.table_name = 'image_tests'
   has_images
-  validates :image, :image_attribute => { :maxwidth => 500 }
+  validates :image, image_attribute: { maxwidth: 500 }
 end
 
 class ImageTestWithHeight < ActiveRecord::Base
   self.table_name = 'image_tests'
   has_images
-  validates :image, :image_attribute => { :maxheight => 500 }
+  validates :image, image_attribute: { maxheight: 500 }
 end
 
 class KeepExif < ActiveRecord::Base
   self.table_name = 'image_tests'
-  has_images :image, :keep_exif => true
+  has_images :image, keep_exif: true
 end
 
 class AttachmentTypeTxt < Tableless
   column :asset, :string
   has_attachment :asset
-  validates :asset, :attachment => { :type => :txt }
+  validates :asset, attachment: { type: :txt }
 end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Confirm, :mogilefs => true do
+describe Confirm, mogilefs: true do
   before(:all) do
     @prev_cache_time = MogileImageStore.options[:upload_cache]
     MogileImageStore.options[:upload_cache] = 1
@@ -10,7 +10,7 @@ describe Confirm, :mogilefs => true do
   end
 
   before do
-    @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
+    @mg = MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] })
     @confirm = FactoryGirl.build(:confirm)
   end
 

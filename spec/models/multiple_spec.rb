@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Multiple, :mogilefs => true do
+describe Multiple, mogilefs: true do
   context "saving" do
     before do
       @multiple = FactoryGirl.build(:multiple)

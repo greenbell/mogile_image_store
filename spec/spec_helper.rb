@@ -51,8 +51,8 @@ RSpec.configure do |config|
     if example.metadata[:mogilefs]
       mogilefs_prepare
       @mg = MogileFS::MogileFS.new({
-        :domain => MogileImageStore.backend['domain'],
-        :hosts  => MogileImageStore.backend['hosts']
+        domain: MogileImageStore.backend['domain'],
+        hosts: MogileImageStore.backend['hosts']
       })
     end
     if example.metadata[:truncation]
@@ -68,6 +68,6 @@ RSpec.configure do |config|
   end
 
   # filtering
-  config.filter_run :focus => true
+  config.filter_run focus: true
   config.run_all_when_everything_filtered = true
 end

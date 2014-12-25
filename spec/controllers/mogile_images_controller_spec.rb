@@ -10,12 +10,12 @@ describe MogileImagesController, type: :controller do
   context "With MogileFS Backend" do
     before(:all) do
       #prepare mogilefs
-      @mogadm = MogileFS::Admin.new :hosts  => MogileImageStore.backend['hosts']
+      @mogadm = MogileFS::Admin.new hosts: MogileImageStore.backend['hosts']
       unless @mogadm.get_domains[MogileImageStore.backend['domain']]
         @mogadm.create_domain MogileImageStore.backend['domain']
         @mogadm.create_class  MogileImageStore.backend['domain'], MogileImageStore.backend['class'], 2 rescue nil
       end
-      @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
+      @mg = MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] })
       image_test = FactoryGirl.build(:image_test)
       image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample.jpg"
       image_test.save
@@ -24,19 +24,19 @@ describe MogileImagesController, type: :controller do
       asset_test.save
     end
     before do
-      @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
+      @mg = MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] })
     end
     after(:all) do
       #cleanup
       MogileImage.destroy_all
-      @mogadm = MogileFS::Admin.new :hosts  => MogileImageStore.backend['hosts']
-      @mg = MogileFS::MogileFS.new({ :domain => MogileImageStore.backend['domain'], :hosts  => MogileImageStore.backend['hosts'] })
+      @mogadm = MogileFS::Admin.new hosts: MogileImageStore.backend['hosts']
+      @mg = MogileFS::MogileFS.new({ domain: MogileImageStore.backend['domain'], hosts: MogileImageStore.backend['hosts'] })
       @mg.each_key('') {|k| @mg.delete k }
       @mogadm.delete_domain MogileImageStore.backend['domain']
     end
 
     it "should return raw jpeg image" do
-      get 'show', :name => 'bcadded5ee18bfa7c99834f307332b02', :format => 'jpg', :size => 'raw'
+      get 'show', name: 'bcadded5ee18bfa7c99834f307332b02', format: 'jpg', size: 'raw'
       expect(response).to be_success
       expect(response.header['Content-Type']).to eq('image/jpeg')
       img = ::Magick::Image.from_blob(response.body).shift
@@ -46,14 +46,14 @@ describe MogileImagesController, type: :controller do
     end
 
     it "should return raw text file" do
-      get 'show', :name => 'd2863cc5448b49cfd0ab49dcb0936a89', :format => 'txt', :size => 'raw'
+      get 'show', name: 'd2863cc5448b49cfd0ab49dcb0936a89', format: 'txt', size: 'raw'
       expect(response).to be_success
       expect(response.header['Content-Type']).to eq('text/plain')
       expect(response.body).to eq("This is sample.\n")
     end
 
     it "should return status 404 when requested non-existent image" do
-      get 'show', :name => 'bcadded5ee18bfa7c99834f307332b01', :format => 'jpg', :size => 'raw'
+      get 'show', name: 'bcadded5ee18bfa7c99834f307332b01', format: 'jpg', size: 'raw'
       expect(response.status).to eq(404)
     end
 
@@ -70,7 +70,7 @@ describe MogileImagesController, type: :controller do
       after (:all){ MogileImageStore.backend['reproxy'] = false }
 
       it "should return url for jpeg image" do
-        get 'show', :name => 'bcadded5ee18bfa7c99834f307332b02', :format => 'jpg', :size => 'raw'
+        get 'show', name: 'bcadded5ee18bfa7c99834f307332b02', format: 'jpg', size: 'raw'
         expect(response).to be_success
         expect(response.header['Content-Type']).to eq('image/jpeg')
         expect(response.header['X-REPROXY-CACHE-FOR']).to eq('604800; Content-Type')
