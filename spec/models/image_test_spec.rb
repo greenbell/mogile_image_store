@@ -411,15 +411,44 @@ describe ImageTest do
     end
 
     context "huge image" do
-      it "should be shrinked to fit within limit" do
+      before do
         @image_test = FactoryGirl.build(:image_test)
-        @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample_huge.gif"
-        expect{ @image_test.save }.not_to raise_error
-        content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
-        imglist = Magick::ImageList.new
-        imglist.from_blob(data)
-        expect(imglist.first.columns).to eq(2048)
-        expect(imglist.first.rows).to eq(1536)
+      end
+
+      context 'height and width excceed the limitation' do
+        it "should be shrinked to fit within limit" do
+          @image_test.set_image_file :image, "#{File.dirname(__FILE__)}/../sample_huge.gif"
+          expect{ @image_test.save! }.not_to raise_error
+          content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
+          imglist = Magick::ImageList.new
+          imglist.from_blob(data)
+          expect(imglist.first.columns).to eq(2048)
+          expect(imglist.first.rows).to eq(1536)
+        end
+      end
+
+      context 'only width excceeds the limitation' do
+        it 'should be sharink to fit within limit' do
+          @image_test.set_image_data :image, ::Magick::Image.new(3072, 3){|i| i.format = 'png'}.to_blob
+          expect{ @image_test.save! }.not_to raise_error
+          content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
+          imglist = Magick::ImageList.new
+          imglist.from_blob(data)
+          expect(imglist.first.columns).to eq(2048)
+          expect(imglist.first.rows).to eq(2)
+        end
+      end
+
+      context 'only height excceeds the limitation' do
+        it 'should be sharink to fit within limit' do
+          @image_test.set_image_data :image, ::Magick::Image.new(3, 3072){|i| i.format = 'png'}.to_blob
+          expect{ @image_test.save! }.not_to raise_error
+          content_type, data = MogileImage.fetch_data(@image_test.image.split('.').first, 'jpg', 'raw')
+          imglist = Magick::ImageList.new
+          imglist.from_blob(data)
+          expect(imglist.first.columns).to eq(2)
+          expect(imglist.first.rows).to eq(2048)
+        end
       end
     end
 

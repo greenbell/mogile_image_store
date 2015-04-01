@@ -43,7 +43,7 @@ module MogileImageStore
       resize = true if ::MogileImageStore.options[:maxwidth] &&
           imglist.first.columns > ::MogileImageStore.options[:maxwidth].to_i
       resize = true if ::MogileImageStore.options[:maxheight] &&
-          imglist.first.columns > ::MogileImageStore.options[:maxheight].to_i
+          imglist.first.rows > ::MogileImageStore.options[:maxheight].to_i
 
       strip = (!options[:keep_exif] &&
                   imglist.inject([]){|r,i| r.concat(i.get_exif_by_entry()) }.any?)
