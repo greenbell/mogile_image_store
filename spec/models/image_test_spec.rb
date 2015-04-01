@@ -20,7 +20,8 @@ describe ImageTest do
       before :all do
         @large_file = Tempfile.new('mogileimagetest')
         @large_file.binmode
-        1.megabytes.times { @large_file << "\0" * 5 }
+        @large_file << File.binread("#{File.dirname(__FILE__)}/../sample_huge.gif")
+        @large_file << "\0" * 5.megabytes
       end
 
       before { @image_test.set_image_file :image, @large_file }
