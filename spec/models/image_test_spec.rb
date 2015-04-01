@@ -1,21 +1,38 @@
 require 'spec_helper'
 
 describe ImageTest do
-  it "should not accept file larger than maxsize" do
-    image_test = ImageTest.new
-    t = Tempfile.new('mogileimagetest')
-    for i in 1..(1.megabytes)
-      t << 'abcde'
-    end
-    t << 'f'
-    expect(t.size).to eq(5.megabytes+1)
-    image_test.set_image_file :image, t
-    expect(image_test.valid?).to be_falsey
-    expect(image_test.errors[:image].shift).to eq("must be smaller than 5120KB.")
-  end
-
   context "default validation" do
     before{ @image_test = ImageTest.new }
+
+    it "should not accept file larger than maxsize" do
+      t = Tempfile.new('mogileimagetest')
+      for i in 1..(1.megabytes)
+        t << 'abcde'
+      end
+      t << 'f'
+      expect(t.size).to eq(5.megabytes+1)
+      @image_test.set_image_file :image, t
+      expect(@image_test.valid?).to be_falsey
+      expect(@image_test.errors[:image]).to include("must be smaller than 5120KB.")
+    end
+
+    context 'receive a file which is larger than mazsize before resize' do
+      before do
+        @image_test.image = ActionDispatch::Http::UploadedFile.new({
+          filename: 'sample.jpg',
+          tempfile: File.open("#{File.dirname(__FILE__)}/../sample_large.png")
+        })
+      end
+
+      it 'should not change the result of valid?' do
+        expect(@image_test.valid?).to eq @image_test.valid?
+      end
+
+      it 'should not accept' do
+       expect(@image_test.valid?).to be_falsey
+      end
+    end
+
     it "should accept jpeg image" do
       @image_test.image = ActionDispatch::Http::UploadedFile.new({
         filename: 'sample.jpg',
