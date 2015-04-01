@@ -113,6 +113,7 @@ module MogileImageStore
             if attachment.size > MogileImageStore.options[:maxsize]
               errors[column] <<
                 I18n.translate('mogile_image_store.errors.messages.size_smaller', size: MogileImageStore.options[:maxsize]/1024)
+              next
             end
 
             begin
