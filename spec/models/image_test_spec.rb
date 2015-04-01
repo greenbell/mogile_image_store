@@ -17,12 +17,13 @@ describe ImageTest do
     end
 
     context 'receive a file which is larger than mazsize before resize' do
-      before do
-        @image_test.image = ActionDispatch::Http::UploadedFile.new({
-          filename: 'sample.jpg',
-          tempfile: File.open("#{File.dirname(__FILE__)}/../sample_large.png")
-        })
+      before :all do
+        @large_file = Tempfile.new('mogileimagetest')
+        @large_file.binmode
+        1.megabytes.times { @large_file << "\0" * 5 }
       end
+
+      before { @image_test.set_image_file :image, @large_file }
 
       it 'should not change the result of valid?' do
         expect(@image_test.valid?).to eq @image_test.valid?
