@@ -212,9 +212,15 @@ class MogileImage < ActiveRecord::Base
 
     # オリジナルの画像サイズと比較
     w, h =  [w, h].map{|i| i.to_i}
-    if w > width && h > height
-      false
-    else
+    begin
+      if w > width && h > height
+        false
+      else
+        true
+      end
+    rescue => e
+      Rails.logger.info e
+      Rails.logger.info "force resize by mogile_image_store"
       true
     end
   end
