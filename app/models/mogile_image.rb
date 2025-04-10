@@ -163,7 +163,8 @@ class MogileImage < ActiveRecord::Base
     def resize_with_fill(img, w, h, n, color)
       n ||= 0
       img.resize_to_fit! w-n*2, h-n*2
-      background = Magick::Image.new(w, h) { self.background_color = color }
+      background = Magick::Image.new(w, h)
+      background.background_color = color
       background.composite(img, Magick::CenterGravity, Magick::OverCompositeOp)
     end
 
