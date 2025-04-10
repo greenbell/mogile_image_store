@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class MogileImage < ActiveRecord::Base
+class MogileImage < ApplicationRecord
   extend MogileImageStore::UrlHelper
 
   before_destroy :purge_stored_content
