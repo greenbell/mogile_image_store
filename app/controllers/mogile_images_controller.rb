@@ -17,11 +17,11 @@ class MogileImagesController < ActionController::Base
       if MogileImageStore.backend['cache']
         response.header['X-REPROXY-CACHE-FOR'] = "#{MogileImageStore.backend['cache']}; Content-Type"
       end
-      render :nothing => true
+      head :ok
     else
       type, data = MogileImage.fetch_data(params[:name], params[:format], params[:size])
       response.header['Content-Type'] = type.to_s
-      render :layout => false, :text => data
+      render plain: data, layout: false, content_type: type
     end
   end
 
@@ -30,7 +30,7 @@ class MogileImagesController < ActionController::Base
   #
   def flush
     unless MogileImageStore.backend['reproxy'] && MogileImageStore.backend['cache']
-      render :nothing => true, :status => "206 No Content"
+      head :no_content
       return
     end
 
@@ -38,13 +38,13 @@ class MogileImagesController < ActionController::Base
     # authentication
     if request.env[MogileImageStore::AUTH_HEADER_ENV] == MogileImageStore.auth_key(body)
       response.header['X-REPROXY-CACHE-CLEAR'] = body
-      render :nothing => true, :status => "200 OK"
+      head :ok
     else
-      render :nothing => true, :status => "401 Unauthorized"
+      head :unauthorized
     end
   end
 
   def error_404
-    render :nothing => true, :status => "404 Not Found"
+    head :not_found
   end
 end
