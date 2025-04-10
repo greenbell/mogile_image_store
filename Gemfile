@@ -4,7 +4,7 @@ if ENV['RAILS_VER'] == '3.0'
   gem "rails", "~> 3.0.0"
   gem "mysql2", "~> 0.2.0"
 else
-  gem "rails", "~> 7.1.1"
+  gem "rails", ">= 7.1.1"
   gem "mysql2"
 end
 
