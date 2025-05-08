@@ -52,7 +52,7 @@ module MogileImageStore
   AUTH_HEADER = 'X-MogileImageStore-Auth'
   # 認証キーがセットされるHTTPリクエストヘッダに対応する環境変数名
   AUTH_HEADER_ENV = 'HTTP_X_MOGILEIMAGESTORE_AUTH'
-  TO_EXTENSION = {'JPEG' => 'jpg', 'GIF' => 'gif', 'PNG' => 'png', 'WEBP' => 'webp'}.freeze
+  TO_EXTENSION = {'JPEG' => 'jpg', 'GIF' => 'gif', 'PNG' => 'png', 'WEBP' => 'webp', 'AVIF' => 'avif'}.freeze
   TO_FORMAT = TO_EXTENSION.invert.freeze
 
 
