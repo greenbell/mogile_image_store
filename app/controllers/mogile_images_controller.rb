@@ -1,7 +1,7 @@
 # coding: utf-8
 
 class MogileImagesController < ActionController::Base
-  protect_from_forgery :except => [:flush]
+  protect_from_forgery :except => [:flush, :show]
 
   rescue_from MogileImageStore::ImageNotFound, :with => :error_404
   rescue_from MogileImageStore::SizeNotAllowed, :with => :error_404
