@@ -37,6 +37,25 @@ module MogileImageStore
         self.image_columns = Array.wrap(columns || 'attachment').map{|item| item.to_sym }
         self.image_options = options.symbolize_keys
 
+        self.image_columns.each do |column|
+          define_method("#{column}=") do |value|
+            if value.is_a?(ActionDispatch::Http::UploadedFile) || value.is_a?(MogileImageStore::Attachment)
+              attachment_cache[column.to_sym] = value
+            else
+              attachment_cache.delete(column.to_sym) if defined?(@attachment_cache) && @attachment_cache
+              write_attribute(column, value)
+            end
+          end
+
+          define_method(column) do
+            if defined?(@attachment_cache) && @attachment_cache && @attachment_cache.key?(column.to_sym)
+              @attachment_cache[column.to_sym]
+            else
+              read_attribute(column)
+            end
+          end
+        end
+
         include MogileImageStore::ActiveRecord::Shared
         include MogileImageStore::Validators
         if image_options[:confirm]
@@ -64,32 +83,39 @@ module MogileImageStore
       end
 
       def set_image_file(column, path)
-        self[column] = ActionDispatch::Http::UploadedFile.new({
+        public_send("#{column}=", ActionDispatch::Http::UploadedFile.new({
           :filename => File.basename(path),
           :tempfile => File.open(path)
-        })
+        }))
       end
 
       def set_image_data(column, data)
-        self[column] = ActionDispatch::Http::UploadedFile.new({
+        public_send("#{column}=", ActionDispatch::Http::UploadedFile.new({
           :tempfile => StringIO.new(data)
-        })
+        }))
+      end
+
+      def attachment_cache
+        @attachment_cache ||= {}
       end
 
       private
 
       def parse_attachments
         image_columns.each do |c|
-          if self[c].is_a? ActionDispatch::Http::UploadedFile
-            self[c] = MogileImageStore::Attachment.new(
-              self[c].read, :filename => self[c].original_filename, :keep_exif => image_options[:keep_exif])
+          attachment = attachment_cache[c] || read_attribute(c)
+
+          if attachment.is_a?(ActionDispatch::Http::UploadedFile)
+            attachment_cache[c] = MogileImageStore::Attachment.new(
+              attachment.read, :filename => attachment.original_filename, :keep_exif => image_options[:keep_exif]
+            )
           end
         end
       end
 
       def validate_images
         image_columns.each do |column|
-          attachment = self[column]
+          attachment = attachment_cache[column] || self[column]
           case attachment
           when MogileImageStore::Attachment
             if attachment.size > MogileImageStore.options[:maxsize]
@@ -124,17 +150,23 @@ module MogileImageStore
 
       def save_attachments
         image_columns.each do |c|
-          if self[c].is_a?(ActionDispatch::Http::UploadedFile)
-            self[c] = MogileImageStore::Attachment.new(
-              self[c].read, :type => self[c].content_type, :keep_exif => self.image_options[:keep_exif])
-          elsif !self[c].is_a?(MogileImageStore::Attachment)
+          attachment = attachment_cache[c] || read_attribute(c)
+
+          if attachment.is_a?(ActionDispatch::Http::UploadedFile)
+            attachment = MogileImageStore::Attachment.new(
+              attachment.read, :type => attachment.content_type, :keep_exif => self.image_options[:keep_exif]
+            )
+          elsif !attachment.is_a?(MogileImageStore::Attachment)
             next
           end
+
           prev_image = self.send(c.to_s+'_was')
           if prev_image.is_a?(String) && !prev_image.empty?
             MogileImage.destroy_image(prev_image)
           end
-          self[c] = MogileImage.save_image(self[c])
+
+          write_attribute(c, MogileImage.save_image(attachment))
+          attachment_cache.delete(c)
         end
       end
     end
@@ -151,8 +183,11 @@ module MogileImageStore
       def temporarily_save_attachments
         if errors.empty?
           image_columns.each do |column|
-            next unless self[column].is_a? MogileImageStore::Attachment
-            self[column] = MogileImage.save_image(self[column], :temporary => true)
+            attachment = attachment_cache[column] || self[column]
+            next unless attachment.is_a? MogileImageStore::Attachment
+            saved_key = MogileImage.save_image(attachment, :temporary => true)
+            write_attribute(column, saved_key)
+            attachment_cache.delete(column)
           end
         end
       end
