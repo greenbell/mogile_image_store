@@ -20,8 +20,8 @@ class AttachmentValidationTest < Minitest::Test
     MogileImageStore.options = @previous_options
   end
 
-  def test_supported_four_character_extensions_are_preserved
-    { 'cover.webp' => 'webp', 'cover.WEBP' => 'webp', 'cover.avif' => 'avif',
+  def test_generic_attachments_keep_legacy_three_character_extensions
+    { 'cover.webp' => 'bin', 'cover.WEBP' => 'bin', 'cover.avif' => 'bin',
       'cover.jpg' => 'jpg', 'cover.svg' => 'svg', 'cover.unknown' => 'bin' }.each do |filename, extension|
       assert_equal extension, MogileImageStore::Attachment.new('data', filename: filename).extension
     end
