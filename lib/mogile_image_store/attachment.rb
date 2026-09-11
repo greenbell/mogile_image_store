@@ -21,7 +21,7 @@ module MogileImageStore
 
     def extension_for(filename)
       (MIME::Types.type_for(filename).first || MIME::Type.new('application/octet-stream')).
-        extensions.find{|e| e.length <= 3} || 'bin'
+        extensions.find{|e| e.length <= 3 || TO_EXTENSION.value?(e)} || 'bin'
     end
 
     def persist(mogile_image)

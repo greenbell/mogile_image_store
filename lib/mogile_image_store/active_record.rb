@@ -119,16 +119,16 @@ module MogileImageStore
           case attachment
           when MogileImageStore::Attachment
             if attachment.size > MogileImageStore.options[:maxsize]
-              errors[column] <<
-                I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => MogileImageStore.options[:maxsize]/1024)
+              errors.add(column,
+                I18n.translate('mogile_image_store.errors.messages.size_smaller', :size => MogileImageStore.options[:maxsize]/1024))
             end
 
             begin
               attachment.preprocess!
             rescue MogileImageStore::InvalidImage
-              errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_image')
+              errors.add(column, I18n.translate('mogile_image_store.errors.messages.must_be_image'))
             rescue MogileImageStore::UnsupportedImage
-              errors[column] << I18n.translate('mogile_image_store.errors.messages.must_be_valid_type')
+              errors.add(column, I18n.translate('mogile_image_store.errors.messages.must_be_valid_type'))
             end
           end
         end
@@ -208,7 +208,7 @@ module MogileImageStore
           if self[column].is_a?(String) && self[column].present? && self.send(column.to_s + '_changed?')
             unless MogileImage.key_exist?(self[column])
               # the attachment with given key no longer exists
-              errors[column] << I18n.translate('mogile_image_store.errors.messages.cache_expired')
+              errors.add(column, I18n.translate('mogile_image_store.errors.messages.cache_expired'))
               self[column] = nil
             end
           end
