@@ -28,9 +28,9 @@ module MogileImageStore
       end
 
       def get_file_data(key)
-        @primary.get_file_data(key)
+        read(@primary, key)
       rescue ::MogileFS::Backend::UnknownKeyError
-        data = @secondary.get_file_data(key)
+        data = read(@secondary, key)
         if @heal
           quietly(:heal, key) { @primary.store_content(key, MogileImageStore.backend['class'], data) }
           log(:info, :healed, key)
@@ -71,6 +71,27 @@ module MogileImageStore
       end
 
       private
+
+      # MogileFS の台帳にはあるのに、実体が全部の置き場所で 404 の物(ディスクから消えた)は「無い」と同じに扱う。
+      # そのままだと MogileFS::Error で 500 になり、リサイズ版なら元画像から作り直されず、
+      # 元画像ならもう一方(S3)にあっても読みに行かない。タイムアウトなど 404 以外が混ざるときは例外のまま。
+      def read(store, key)
+        store.get_file_data(key)
+      rescue ::MogileFS::Backend::UnknownKeyError
+        raise
+      rescue ::MogileFS::Error => e
+        raise unless lost_file?(e)
+        log(:warn, :lost, key, e)
+        raise ::MogileFS::Backend::UnknownKeyError, "unknown_key #{key}"
+      end
+
+      # "all paths failed with GET: http://…/x.fid - Not Found (Net::HTTPNotFound), http://…/y.fid - Not Found (Net::HTTPNotFound)"
+      def lost_file?(error)
+        message = error.message.to_s
+        return false unless message.start_with?('all paths failed')
+        failures = message.sub(/\Aall paths failed with \w+: /, '').split(/, (?=https?:\/\/)/)
+        failures.any? && failures.all? { |f| f.include?('Net::HTTPNotFound') }
+      end
 
       def quietly(action, key)
         yield
