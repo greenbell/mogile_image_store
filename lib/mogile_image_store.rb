@@ -26,6 +26,9 @@ module MogileImageStore
     if backend['mount_at']
       backend['mount_at'] += '/' if backend['mount_at'][-1] != '/'
     end
+    if backend['origin_mount_at']
+      backend['origin_mount_at'] += '/' if backend['origin_mount_at'][-1] != '/'
+    end
     if backend['base_url']
       backend['base_url'] += '/' if backend['base_url'][-1] != '/'
     else
