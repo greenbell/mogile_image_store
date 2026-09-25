@@ -41,10 +41,16 @@ module MogileImageStore
     def copy_all(prefix: '')
       after = File.exist?(checkpoint_path) ? File.read(checkpoint_path).strip.presence : nil
       say "開始: prefix=#{prefix.inspect} 再開位置=#{after.inspect} 並列=#{@threads}"
+      # 再開位置は「待ち行列に入れたキー」ではなく、それより十分前(待ち行列の長さ + 並列数の 2 倍)に列挙したキーにする。
+      # 待ち行列にあってまだ写していないキーを、止めたときに飛ばさないため
+      lag = (@threads * 50 + @threads) * 2
+      recent = []
       run_workers do |queue|
         enumerate(prefix, after) do |key|
           queue << key
-          @lock.synchronize { File.write(checkpoint_path, key) if (@stats[:listed] += 1) % 1000 == 0 }
+          recent << key
+          recent.shift if recent.size > lag
+          @lock.synchronize { File.write(checkpoint_path, recent.first) if (@stats[:listed] += 1) % 1000 == 0 && recent.size >= lag }
         end
       end
       File.write(checkpoint_path, '') # 最後まで終わったら次は頭から
