@@ -21,6 +21,11 @@ class MogileImagesController < ActionController::Base
     else
       type, data = MogileImage.fetch_data(params[:name], params[:format], params[:size])
       response.header['Content-Type'] = type.to_s
+      # v2: CloudFront の「S3 に無いとき」の元として返すときに、S3 に置いた物と同じキャッシュ指定にする
+      if (cache_control = MogileImageStore.backend['serve_cache_control']).present?
+        response.header['Cache-Control'] = cache_control
+        response.header['Access-Control-Allow-Origin'] = '*'
+      end
       render plain: data, layout: false, content_type: type
     end
   end

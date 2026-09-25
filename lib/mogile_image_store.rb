@@ -57,6 +57,7 @@ module MogileImageStore
 
 
   autoload :ActiveRecord,   'mogile_image_store/active_record'
+  autoload :Storage,        'mogile_image_store/storage'
   autoload :Attachment,     'mogile_image_store/attachment'
   autoload :FormBuilder,    'mogile_image_store/form_helper'
   autoload :ImageDeletable, 'mogile_image_store/image_deletable'

@@ -92,12 +92,11 @@ class MogileImage < ApplicationRecord
       key.count == where(:name => names).count
     end
 
+    ##
+    # 画像の保存先。名前は v1 のままだが、mogile_fs.yml の storage に応じて
+    # MogileFS / S3 / 両方(移行中)のどれかを返す(どれも MogileFS::MogileFS と同じメソッドを持つ)
     def mogilefs_connection
-      @@mogilefs ||= MogileFS::MogileFS.new({
-        :domain => MogileImageStore.backend['domain'],
-        :hosts  => MogileImageStore.backend['hosts'],
-        :timeout => MogileImageStore.backend['timeout'] || 3
-      })
+      @@mogilefs ||= MogileImageStore::Storage.build
     end
 
     def mime_type_for(format)
