@@ -24,6 +24,9 @@ module MogileImageStore
         @prefix = conf['prefix'] || "#{backend['domain']}/"
         @fallback_bucket = conf['fallback_bucket']
         @fallback_prefix = conf['fallback_prefix'] || @prefix
+        # 読み出しの最後の予備: 本番の公開 URL(例 https://img.night.style-vip.jp/image/)。ローカル開発で本番の画像を見る用。
+        # 本番バケットへのコピーが済む前でも使える。読むだけで、手元のバケットには写さない
+        @fallback_url = conf['fallback_url'].presence&.then { |u| u.end_with?('/') ? u : "#{u}/" }
         @cache_control = conf['cache_control'] || 'public, max-age=31536000, immutable'
         options = { region: conf['region'] || 'ap-northeast-1',
                     http_open_timeout: (conf['open_timeout'] || 3).to_f,
@@ -96,9 +99,26 @@ module MogileImageStore
       private
 
       def read_fallback(key)
-        raise unknown_key(key) unless @fallback_bucket
-        @client.get_object(bucket: @fallback_bucket, key: "#{@fallback_prefix}#{key}").body.read.force_encoding(Encoding::BINARY)
-      rescue *NOT_FOUND, Aws::S3::Errors::AccessDenied
+        if @fallback_bucket
+          begin
+            return @client.get_object(bucket: @fallback_bucket, key: "#{@fallback_prefix}#{key}").body.read.force_encoding(Encoding::BINARY)
+          rescue *NOT_FOUND, Aws::S3::Errors::AccessDenied
+          end
+        end
+        read_fallback_url(key)
+      end
+
+      # キー "<md5>.<ext>" → <fallback_url>raw/<md5>.<ext>、"<md5>.<fmt>/<size>" → <fallback_url><size>/<md5>.<fmt>
+      def read_fallback_url(key)
+        raise unknown_key(key) unless @fallback_url
+        name, size = key.split('/', 2)
+        uri = URI.parse("#{@fallback_url}#{size || 'raw'}/#{name}")
+        res = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 3, read_timeout: 15) do |http|
+          http.request(Net::HTTP::Get.new(uri.request_uri))
+        end
+        raise unknown_key(key) unless res.is_a?(Net::HTTPOK)
+        res.body.to_s.force_encoding(Encoding::BINARY)
+      rescue SocketError, SystemCallError, Timeout::Error, OpenSSL::SSL::SSLError, Net::HTTPBadResponse
         raise unknown_key(key)
       end
 

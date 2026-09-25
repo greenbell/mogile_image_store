@@ -110,6 +110,11 @@ class MogileImage < ApplicationRecord
     #
     def retrieve_image(name, format, size, &block)
       record = find_by_name(name)
+      # v2: ローカル開発で、本番から持ってきたデータが指す画像(手元の DB に登録が無い)も保存先を見に行く。
+      # mogile_fs.yml に allow_unregistered: true と書いたときだけ(本番では書かない)
+      if !record && MogileImageStore.backend['allow_unregistered']
+        record = new(name: name, image_type: format)
+      end
       raise MogileImageStore::ImageNotFound unless record
 
       # check whether size is allowd
