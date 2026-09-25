@@ -38,10 +38,15 @@ module MogileImageStore
       end
 
       def store_content(key, _klass, content)
-        content = content.to_s
-        @client.put_object(bucket: @bucket, key: object_key(key), body: content,
-                           content_type: content_type_for(key), cache_control: @cache_control)
-        content.bytesize
+        store_and_etag(key, content)
+        content.to_s.bytesize
+      end
+
+      # 保存して S3 の ETag(1 回で送った物は中身の MD5)を返す。コピーの検証用
+      def store_and_etag(key, content)
+        resp = @client.put_object(bucket: @bucket, key: object_key(key), body: content.to_s,
+                                  content_type: content_type_for(key), cache_control: @cache_control)
+        resp.etag.to_s.delete('"')
       end
 
       # MogileFS と同じく BINARY の文字列で返す(aws-sdk は US-ASCII の札で返すことがある)
